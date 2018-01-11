@@ -126,8 +126,8 @@ for i in range(len(has_ball)):
 
 print("before transform", where_balls)
 
-where_balls = list[map(lambda ball: (ball[0], ball[1] * window_size/num_scans, ball[2] * window_size/num_scans), balls)]
-print("after transoform", where_balls)
+where_balls = list(map(lambda ball: (ball[0], ball[1] * window_size/num_scans, ball[2] * window_size/num_scans), balls))
+print("after transform", where_balls)
 # todo: change coordinates in small 16 square to big square
 # todo: from total list of balls given by thresholder, annotate raw images
 
