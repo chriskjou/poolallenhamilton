@@ -123,17 +123,7 @@ for i in range(len(has_ball)):
 
     t.lovelyplot(fullheatmap[:,:,1], i + "full")
     t.lovelyplot(fullheatmap[:,:,2], i + "full")
-<<<<<<< HEAD
-    # todo: test threshold code and improve thresholding algos
-    """
-    plt.imshow(fullheatmap[:,:,1])
-    plt.savefig("elbytest/heatmap_solid%d" % i)
-    plt.imshow(fullheatmap[:,:,1])
-    plt.savefig("elbytest/heatmap_stripe%d" % i)
-    """
-# todo: from total list of balls given by thresholder, annotate raw images
-=======
+
 
 # todo: change coordinates in small 16 square to big square
 # todo: from total list of balls given by thresholder, annotate raw images
->>>>>>> ee6f2a30246ccea6a0e429c3cfde33a15a88889c
