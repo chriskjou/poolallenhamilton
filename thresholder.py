@@ -4,6 +4,7 @@ import numpy as np
 import scipy
 import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
+import matplotlib.pyplot as plt
 
 class Thresholder:
     def __init__(self, heatmap, threshold):
@@ -11,14 +12,22 @@ class Thresholder:
         self.balls = []
         self.threshold = threshold
 
+    def lovelyplot(self, arr, name):
+        plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
+        plt.colorbar()
+        plt.title(name)
+        plt.show()
+
     # https://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
     # https://stackoverflow.com/questions/3684484/peak-detection-in-a-2d-array
     # todo: annotation techniques described at these links
     def thresh(self):
         nb_sz = 3 # todo: play with this
-        # for stripes and solids
+        # for solids and stripes
         for balltype in [1,2]:
             data = self.heatmap[:,:,balltype]
+            name = 'stripe' if balltype - 1 else 'solid'
+            self.lovelyplot(data, name)
             data_max = filters.maximum_filter(data, nb_sz)
             maxima = (data == data_max)
             data_min = filters.minimum_filter(data, nb_sz)
@@ -27,8 +36,8 @@ class Thresholder:
 
             labeled, num_objects = ndimage.label(maxima) # todo: play with this (size, generate_binary_structure)
             xy = np.array(ndimage.center_of_mass(data, labeled, range(1, num_objects+1)))
-
-            name = balltype-1 ? 'stripe' : 'solid'
+            print("xy", xy)
             for ball in xy:
                 self.balls = self.balls.append((name, ball[0], ball[1]))
+        return self.balls
     # todo: also try skimage peak_local_max, imageJ findmaxima function
