@@ -115,8 +115,8 @@ for i in range(len(has_ball)):
     # heatmap for a bigsmall done
     heatmap = heatmap * 255
     # todo: test fullheatmap insertion for correctness
-    xt = window_size * (i % 4)
-    yt = window_size * (i >= 4)
+    xt = num_scans * (i % 4)
+    yt = num_scans * (i >= 4)
     fullheatmap[xt:(xt+num_scans), yt:(yt+num_scans), :] = heatmap
 
     # todo: on windows, use interpolation='none' to stop blurring effect
@@ -144,9 +144,10 @@ for i in range(len(has_ball)):
         heatmap.append(row)
     """
     #heatmap = np.array(heatmap).astype(float)
-    heatmap = np.reshape(heatmap, (16,16,3)) # i think?
     t = Thresholder(heatmap, smallwindow_threshold)
     balls = t.thresh()
+
+    ## TODO: change coordinates in small 16 square to big square
     balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
     print(balls)
 """
