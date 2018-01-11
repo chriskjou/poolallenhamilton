@@ -113,16 +113,18 @@ for i in range(len(has_ball)):
     # todo: transpose the heatmaps before plotting
     t = Thresholder(heatmap, smallwindow_threshold, i)
     balls = t.thresh()
-    t.lovelyplot(heatmap[:,:,1], i+'thisthingthatearlier')
-    t.lovelyplot(heatmap[:,:,2], i+'thisthingthatearlier')
+    t.lovelyplot(heatmap[:,:,1], str(i)+'thisthingthatearlier')
+    t.lovelyplot(heatmap[:,:,2], str(i)+'thisthingthatearlier')
 
     #
     balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
     print(balls)
     where_balls.extend(balls)
 
-    t.lovelyplot(fullheatmap[:,:,1], i + "full")
-    t.lovelyplot(fullheatmap[:,:,2], i + "full")
+    t.lovelyplot(fullheatmap[:,:,1], str(i) + "full")
+    t.lovelyplot(fullheatmap[:,:,2], str(i) + "full")
+
+print(where_balls)
 
 
 # todo: change coordinates in small 16 square to big square

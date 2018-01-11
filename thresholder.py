@@ -19,7 +19,7 @@ class Thresholder:
         plt.xlabel('long edge')
         plt.ylabel('short edge')
         plt.title(name)
-        plt.savefig(name + self.ballsquare, vmin=0, vmax=1)
+        plt.savefig(name + str(self.ballsquare), vmin=0, vmax=1)
         plt.show()
 
     # https://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
