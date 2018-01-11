@@ -16,7 +16,6 @@ class Thresholder:
         plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
         plt.colorbar()
         plt.title(name)
-        plt.savefig(name, vmin=0, vmax=1)
         plt.show()
 
     # https://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value

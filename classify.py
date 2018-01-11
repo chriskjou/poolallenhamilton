@@ -113,6 +113,7 @@ for i in range(len(has_ball)):
     f.close()
 
     # heatmap for a bigsmall done
+    # todo: is the thing
     heatmap = heatmap * 255
     # todo: test fullheatmap insertion for correctness
     xt = num_scans * (i % 4)
