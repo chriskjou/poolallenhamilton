@@ -6,6 +6,15 @@ import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 import matplotlib.pyplot as plt
 
+def lovelyplot(arr, name, bsq):
+        plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
+        plt.colorbar()
+        plt.xlabel('long edge')
+        plt.ylabel('short edge')
+        plt.title(name)
+        plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
+        plt.show()
+
 class Thresholder:
     def __init__(self, heatmap, threshold, ballsquare):
         self.heatmap = heatmap
@@ -13,14 +22,8 @@ class Thresholder:
         self.threshold = threshold
         self.ballsquare = ballsquare
 
-    def lovelyplot(self, arr, name):
-        plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
-        plt.colorbar()
-        plt.xlabel('long edge')
-        plt.ylabel('short edge')
-        plt.title(name)
-        plt.savefig(name + str(self.ballsquare), vmin=0, vmax=1)
-        plt.show()
+    def get_heatmap(self):
+        return self.heatmap
 
     # https://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value
     # https://stackoverflow.com/questions/3684484/peak-detection-in-a-2d-array
@@ -31,7 +34,7 @@ class Thresholder:
         for balltype in [1,2]:
             data = self.heatmap[:,:,balltype]
             name = 'stripe' if balltype - 1 else 'solid'
-            self.lovelyplot(data, name)
+            lovelyplot(data, name+'inthresh', self.ballsquare)
             data_max = filters.maximum_filter(data, nb_sz)
             maxima = (data == data_max)
             data_min = filters.minimum_filter(data, nb_sz)
