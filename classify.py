@@ -123,6 +123,7 @@ for i in range(len(has_ball)):
     # todo: gotta get the colorbar to work! for beaut vizs
     # todo: get rid of elbytest
     # todo: just save fullheatmap once instead of 8 individual partial heatmaps
+    # todo: transpose the heatmaps before plotting
     plt.imshow(heatmap[:,:,0])
     #plt.colorbar(heatmap)
     plt.savefig("elbytest/heatmap_neither%d" % i)
