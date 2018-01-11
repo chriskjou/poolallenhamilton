@@ -115,23 +115,15 @@ for i in range(len(has_ball)):
     balls = t.thresh()
     t.lovelyplot(heatmap[:,:,1], i+'thisthingthatearlier')
     t.lovelyplot(heatmap[:,:,2], i+'thisthingthatearlier')
-    """
-    plt.imshow(heatmap[:,:,0])
-    plt.savefig("elbytest/heatmap_neither%d" % i)
 
-    plt.imshow(heatmap[:,:,1])
-    plt.savefig("elbytest/heatmap_solid%d" % i)
-
-    plt.imshow(heatmap[:,:,2])
-    plt.savefig("elbytest/heatmap_stripe%d" % i)
-    """
-    ## TODO: change coordinates in small 16 square to big square
+    #
     balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
     print(balls)
     where_balls.extend(balls)
 
     t.lovelyplot(fullheatmap[:,:,1], i + "full")
     t.lovelyplot(fullheatmap[:,:,2], i + "full")
+<<<<<<< HEAD
     # todo: test threshold code and improve thresholding algos
     """
     plt.imshow(fullheatmap[:,:,1])
@@ -140,3 +132,8 @@ for i in range(len(has_ball)):
     plt.savefig("elbytest/heatmap_stripe%d" % i)
     """
 # todo: from total list of balls given by thresholder, annotate raw images
+=======
+
+# todo: change coordinates in small 16 square to big square
+# todo: from total list of balls given by thresholder, annotate raw images
+>>>>>>> ee6f2a30246ccea6a0e429c3cfde33a15a88889c
