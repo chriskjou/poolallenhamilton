@@ -61,9 +61,9 @@ for (x, y, window) in sliding_window(image, stepSize=window_size, windowSize=(wi
 
 # loads graph (assumed to be stored in ../logs)
 with tf.gfile.FastGFile("../logs/trained_graph.pb", 'rb') as f:
-    graph_def = tf.GraphDef()
-    graph_def.ParseFromString(f.read())
-    g1 = tf.import_graph_def(graph_def, name='g1')
+  graph_def = tf.GraphDef()
+  graph_def.ParseFromString(f.read())
+  g1 = tf.import_graph_def(graph_def, name='g1')
 
 # CLASSIFY BIGWINDOW
 label_lines = [line.rstrip() for line
