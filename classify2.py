@@ -9,7 +9,7 @@ import cv2
 import glob
 
 ### TENSORFLOW SETUP
-# Disable tensorflow compilation warnings
+# todo: disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 import tensorflow as tf
 
