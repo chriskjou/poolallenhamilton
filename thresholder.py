@@ -34,10 +34,9 @@ class Thresholder:
             diff = ((data_max - data_min) > self.threshold)
             maxima[diff == 0] = 0
 
-            labeled, num_objects = ndimage.label(maxima) # todo: play with this (size, generate_binary_structure)
+            labeled, num_objects = ndimage.label(diff)
             xy = np.array(ndimage.center_of_mass(data, labeled, range(1, num_objects+1)))
-            print("xy", xy)
             for ball in xy:
-                self.balls = self.balls.append((name, ball[0], ball[1]))
+                self.balls.append((name, ball[0], ball[1]))
         return self.balls
     # todo: also try skimage peak_local_max, imageJ findmaxima function

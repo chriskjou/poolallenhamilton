@@ -3,7 +3,7 @@ import numpy as np
 import csv
 
 has_ball = [False, False, False, False, True, False, True]
-smallwindow_threshold = .8
+smallwindow_threshold = .5
 xt = 0
 yt = 0
 
@@ -21,6 +21,5 @@ heatmap = np.array(heatmap).astype(float)
 heatmap = np.reshape(heatmap, (16,16,3)) # i think?
 t = Thresholder(heatmap, smallwindow_threshold)
 balls = t.thresh()
-print(balls)
 balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
 print(balls)
