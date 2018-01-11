@@ -22,7 +22,7 @@ window_size = 395
 window_threshold = 0.9
 smallwindow_size = 48
 smallwindow_threshold = 0.7 * 255
-smallwindow_step = 48
+smallwindow_step = 23
 # elby testing- set back to original fine-grained vals
 # you can change them back to 395, .9, 131, .7, 3
 num_scans = (window_size - smallwindow_size) // smallwindow_step + 1
@@ -113,8 +113,8 @@ for i in range(len(has_ball)):
     # todo: transpose the heatmaps before plotting
     t = Thresholder(heatmap, smallwindow_threshold, i)
     balls = t.thresh()
-    t.lovelyplot(heatmap[:,:,1], str(i)+'thisthingthatearlier')
-    t.lovelyplot(heatmap[:,:,2], str(i)+'thisthingthatearlier')
+    #t.lovelyplot(heatmap[:,:,1], str(i)+'thisthingthatearlier')
+    #t.lovelyplot(heatmap[:,:,2], str(i)+'thisthingthatearlier')
 
     #
     balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
