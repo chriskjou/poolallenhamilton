@@ -7,15 +7,19 @@ import scipy.ndimage.filters as filters
 import matplotlib.pyplot as plt
 
 class Thresholder:
-    def __init__(self, heatmap, threshold):
+    def __init__(self, heatmap, threshold, ballsquare):
         self.heatmap = heatmap
         self.balls = []
         self.threshold = threshold
+        self.ballsquare = ballsquare
 
     def lovelyplot(self, arr, name):
         plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
         plt.colorbar()
+        plt.xlabel('long edge')
+        plt.ylabel('short edge')
         plt.title(name)
+        plt.savefig(name + ballsquare, vmin=0, vmax=1)
         plt.show()
 
     # https://stackoverflow.com/questions/9111711/get-coordinates-of-local-maxima-in-2d-array-above-certain-value

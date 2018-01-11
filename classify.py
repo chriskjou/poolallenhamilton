@@ -22,26 +22,11 @@ window_size = 395
 window_threshold = 0.9
 smallwindow_size = 48
 smallwindow_threshold = 0.7 * 255
-smallwindow_step = 23
+smallwindow_step = 48
 # elby testing- set back to original fine-grained vals
 # you can change them back to 395, .9, 131, .7, 3
 num_scans = (window_size - smallwindow_size) // smallwindow_step + 1
 print("num_scans is", num_scans) # p sure this is right
-
-### LOCATION FROM TINY BALL TO BIG PICTURE
-def getLocation(x,y,box):
-  # todo: what if there are more/less than 8 big boxes?
-  if box < 5:
-    xreal = x + window_size * (box-1)
-    yreal = y
-  else:
-    xreal = x + window_size * (box-5)
-    yreal = window_size + y
-  return (xreal, yreal)
-
-# alternatively
-def getLoc(x,y,box):
-  return (x + window_size * ((box - 1) % 4), y + window_size * (box > 4))
 
 ### SLIDER SETUP
 ap = argparse.ArgumentParser()
@@ -70,6 +55,7 @@ with tf.gfile.FastGFile("../logs/trained_graph.pb", 'rb') as f:
 label_lines = [line.rstrip() for line
                    in tf.gfile.GFile("../logs/trained_labels.txt")]
 
+where_balls = []
 has_ball = []
 for img in eight_images:
   # todo: run all 8 images in a big batch?
@@ -121,43 +107,36 @@ for i in range(len(has_ball)):
     fullheatmap[xt:(xt+num_scans), yt:(yt+num_scans), :] = heatmap
 
     # todo: on windows, use interpolation='none' to stop blurring effect
-    # todo: gotta get the colorbar to work! for beaut vizs
+    # ELB ^^^
+
     # todo: get rid of elbytest
-    # todo: just save fullheatmap once instead of 8 individual partial heatmaps
     # todo: transpose the heatmaps before plotting
+    t = Thresholder(heatmap, smallwindow_threshold, i)
+    balls = t.thresh()
+    t.lovelyplot(heatmap[:,:,1], i+'thisthingthatearlier')
+    t.lovelyplot(heatmap[:,:,2], i+'thisthingthatearlier')
+    """
     plt.imshow(heatmap[:,:,0])
-    #plt.colorbar(heatmap)
     plt.savefig("elbytest/heatmap_neither%d" % i)
 
     plt.imshow(heatmap[:,:,1])
-    #plt.colorbar(heatmap)
     plt.savefig("elbytest/heatmap_solid%d" % i)
 
     plt.imshow(heatmap[:,:,2])
-    #plt.colorbar(heatmap)
     plt.savefig("elbytest/heatmap_stripe%d" % i)
-
-    # THRESHOLD
     """
-    heatmap = []
-    with open('elbytest/test.csv') as csvfile:
-      reader = csv.reader(csvfile)
-      for row in reader:
-        heatmap.append(row)
-    """
-    #heatmap = np.array(heatmap).astype(float)
-    t = Thresholder(heatmap, smallwindow_threshold)
-    balls = t.thresh()
-
     ## TODO: change coordinates in small 16 square to big square
     balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
     print(balls)
-"""
-    t = Thresholder(heatmap, has_ball, smallwindow_threshold)
-    balls = t.thresh()
-    balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
-    print(balls)
-"""
-    # todo: test threshold code and improve thresholding algos
+    where_balls.extend(balls)
 
+    t.lovelyplot(fullheatmap[:,:,1], i + "full")
+    t.lovelyplot(fullheatmap[:,:,2], i + "full")
+    # todo: test threshold code and improve thresholding algos
+    """
+    plt.imshow(fullheatmap[:,:,1])
+    plt.savefig("elbytest/heatmap_solid%d" % i)
+    plt.imshow(fullheatmap[:,:,1])
+    plt.savefig("elbytest/heatmap_stripe%d" % i)
+    """
 # todo: from total list of balls given by thresholder, annotate raw images
