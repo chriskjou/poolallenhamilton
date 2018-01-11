@@ -115,12 +115,16 @@ for i in range(len(has_ball)):
 
     # heatmap for a bigsmall done
     heatmap = heatmap * 255
-    # todo: insert to fullheatmap
-
+    # todo: test fullheatmap insertion for correctness
+    xt = window_size * (i % 4)
+    yt = window_size * (i >= 4)
+    fullheatmap[xt:(xt+num_scans), yt:(yt+num_scans), :] = heatmap
 
     # todo: on windows, use interpolation='none' to stop blurring effect
-    plt.imshow(heatmap[:,:,0])
     # todo: gotta get the colorbar to work! for beaut vizs
+    # todo: get rid of elbytest
+    # todo: just save fullheatmap once instead of 8 individual partial heatmaps
+    plt.imshow(heatmap[:,:,0])
     #plt.colorbar(heatmap)
     plt.savefig("elbytest/heatmap_neither%d" % i)
 
@@ -131,5 +135,12 @@ for i in range(len(has_ball)):
     plt.imshow(heatmap[:,:,2])
     #plt.colorbar(heatmap)
     plt.savefig("elbytest/heatmap_stripe%d" % i)
-    # todo: get rid of elbytest
-    assert(0==1)
+
+    # THRESHOLD
+    t = Thresholder(fullheatmap, has_ball, smallwindow_threshold)
+    balls = t.thresh()
+    balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
+    print(balls)
+    # todo: test threshold code and improve thresholding algos
+
+# todo: from total list of balls given by thresholder, annotate raw images
