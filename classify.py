@@ -21,7 +21,7 @@ import tensorflow as tf
 window_size = 395
 window_threshold = 0.9
 smallwindow_size = 48
-smallwindow_threshold = 0.7
+smallwindow_threshold = 0.7 * 255
 smallwindow_step = 23
 # elby testing- set back to original fine-grained vals
 # you can change them back to 395, .9, 131, .7, 3
