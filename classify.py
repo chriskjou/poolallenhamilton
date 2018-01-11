@@ -100,7 +100,7 @@ for i in range(len(has_ball)):
     f.close()
 
     # heatmap for a bigsmall done
-    # todo: is the thing 
+    # todo: is the thing
     ### heatmap = heatmap * 255
     # todo: test fullheatmap insertion for correctness
     xt = num_scans * (i % 4)
@@ -130,5 +130,4 @@ where_balls = list[map(lambda ball: (ball[0], ball[1] * window_size/num_scans, b
 print("after transoform", where_balls)
 # todo: change coordinates in small 16 square to big square
 # todo: from total list of balls given by thresholder, annotate raw images
-
 
