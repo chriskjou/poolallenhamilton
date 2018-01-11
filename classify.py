@@ -96,7 +96,6 @@ for i in range(len(has_ball)):
     count = 0
     (winW, winH) = (smallwindow_size, smallwindow_size)
     for (x, y, smallwindow) in sliding_window(big_image, stepSize=smallwindow_step, windowSize=(winW, winH)):
-      # todo: stepSize should be smallwindow_step, not smallwindow_size, right????
       if smallwindow.shape[0] != winH or smallwindow.shape[1] != winW:
         continue
       count += 1
@@ -107,7 +106,6 @@ for i in range(len(has_ball)):
 
       print("x and y transformed are", int(x/smallwindow_step),int(y/smallwindow_step))
       heatmap[int(x/smallwindow_step),int(y/smallwindow_step),:] = predictions[0]
-      # todo: these should all be smallwindow_step instead of smallwindow_size too, right?
 
     f = open("elbytest/heatmap%d.txt" % i,"w")
     f.write(str(heatmap))
