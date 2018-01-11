@@ -10,6 +10,7 @@ import glob
 import classify2
 import matplotlib.pyplot as plt
 from thresholder import Thresholder
+import csv
 
 ### TENSORFLOW SETUP
 # todo: disable tensorflow compilation warnings
@@ -135,10 +136,25 @@ for i in range(len(has_ball)):
     plt.savefig("elbytest/heatmap_stripe%d" % i)
 
     # THRESHOLD
+    """
+    heatmap = []
+    with open('elbytest/test.csv') as csvfile:
+      reader = csv.reader(csvfile)
+      for row in reader:
+        heatmap.append(row)
+    """
+    #heatmap = np.array(heatmap).astype(float)
+    heatmap = np.reshape(heatmap, (16,16,3)) # i think?
+    t = Thresholder(heatmap, smallwindow_threshold)
+    balls = t.thresh()
+    balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
+    print(balls)
+"""
     t = Thresholder(heatmap, has_ball, smallwindow_threshold)
     balls = t.thresh()
     balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
     print(balls)
+"""
     # todo: test threshold code and improve thresholding algos
 
 # todo: from total list of balls given by thresholder, annotate raw images
