@@ -20,9 +20,9 @@ import tensorflow as tf
 ### GLOBAL VARIABLES
 window_size = 395
 window_threshold = 0.9
-smallwindow_size = 48
+smallwindow_size = 131
 smallwindow_threshold = 0.7 * 255
-smallwindow_step = 48
+smallwindow_step = 131
 # elby testing- set back to original fine-grained vals
 # you can change them back to 395, .9, 131, .7, 3
 num_scans = (window_size - smallwindow_size) // smallwindow_step + 1
