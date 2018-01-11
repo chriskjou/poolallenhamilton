@@ -9,7 +9,7 @@ import cv2
 import glob
 import classify2
 import matplotlib.pyplot as plt
-from thresholder import Thresholder
+from thresholder import Thresholder, lovelyplot
 import csv
 
 ### TENSORFLOW SETUP
@@ -20,9 +20,10 @@ import tensorflow as tf
 ### GLOBAL VARIABLES
 window_size = 395
 window_threshold = 0.9
-smallwindow_size = 131
-smallwindow_threshold = 0.7 * 255
-smallwindow_step = 131
+smallwindow_size = 48
+smallwindow_threshold = 0.9
+smallwindow_step = 23
+
 # elby testing- set back to original fine-grained vals
 # you can change them back to 395, .9, 131, .7, 3
 num_scans = (window_size - smallwindow_size) // smallwindow_step + 1
@@ -100,7 +101,7 @@ for i in range(len(has_ball)):
 
     # heatmap for a bigsmall done
     # todo: is the thing
-    heatmap = heatmap * 255
+    ### heatmap = heatmap * 255
     # todo: test fullheatmap insertion for correctness
     xt = num_scans * (i % 4)
     yt = num_scans * (i >= 4)
@@ -109,23 +110,24 @@ for i in range(len(has_ball)):
     # todo: on windows, use interpolation='none' to stop blurring effect
     # ELB ^^^
 
-    # todo: get rid of elbytest
     # todo: transpose the heatmaps before plotting
+    lovelyplot(heatmap[:,:,1], 'solidoutthresh', i)
+    lovelyplot(heatmap[:,:,2], 'stripeoutthresh', i)
+
     t = Thresholder(heatmap, smallwindow_threshold, i)
     balls = t.thresh()
-    t.lovelyplot(heatmap[:,:,1], str(i)+'thisthingthatearlier')
-    t.lovelyplot(heatmap[:,:,2], str(i)+'thisthingthatearlier')
 
-    #
     balls = list(map(lambda ball: (ball[0],ball[1]+xt,ball[2]+yt), balls))
     print(balls)
     where_balls.extend(balls)
 
-    t.lovelyplot(fullheatmap[:,:,1], str(i) + "full")
-    t.lovelyplot(fullheatmap[:,:,2], str(i) + "full")
+    lovelyplot(fullheatmap[:,:,1], 'solidfullheatmap', i)
+    lovelyplot(fullheatmap[:,:,2], 'stripefullheatmap', i)
 
-print(where_balls)
+print("before transform", where_balls)
 
-
+where_balls = list[map(lambda ball: (ball[0], ball[1] * window_size/num_scans, ball[2] * window_size/num_scans), balls)]
+print("after transoform", where_balls)
 # todo: change coordinates in small 16 square to big square
 # todo: from total list of balls given by thresholder, annotate raw images
+
