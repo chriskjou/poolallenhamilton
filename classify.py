@@ -11,7 +11,6 @@ import classify2
 import classify3
 import utils2
 import matplotlib.pyplot as plt
-from thresholder import Thresholder, lovelyplot, annotatePlot
 import csv
 from thresholder import Thresholder, lovelyplot
 import time
@@ -40,8 +39,8 @@ image = cv2.imread(args["image"])
 
 ### cutting for now
 # I had difficulty getting ffmpeg to crop, so I'll do it here.
-if image.shape != (1580,790):
-  image = image[40:1620,60:850]
+# if image.shape != (1580,790):
+#   image = image[40:1620,60:850]
 
 # cut pool table into 8 images
 
@@ -79,6 +78,50 @@ for each in balls:
   plt.plot(int(each[0]), int(each[1]), 'ro')
 plt.show()
 
+# adding ball classifier to interesting points
+interesting_count = 0
+names = []
+for ball in balls:
+  xcoord = int(ball[0] * 23)
+  ycoord = int(ball[1] * 23)
+  print("XCOORD:", xcoord)
+  print("YCOORD:", ycoord)
+  small_image = image[max(ycoord - 24, 0): min(ycoord + 24, 1480), max(xcoord - 24, 0): min(xcoord + 24, 1480)]
+  #print("SMALL_IMAGE:", small_image)
+  predictions = classify2.isball(small_image)
+  cv2.imwrite("interesting%d.jpg" % interesting_count, small_image)
+  print("WHICH BALL:", ball)
+  print(predictions)
+
+  maxnum = predictions[0][0]
+  index = 0
+  for i in range(1, 3):
+      if maxnum < predictions[0][i]:
+        maxnum = predictions[0][i]
+        index = i
+
+  if index == 0:
+    names.append('nothing')
+  elif index == 1:
+    names.append('solids')
+  else:
+    names.append('stripes')
+  interesting_count+=1
+"""
+  if predictions[0][1] > window_threshold:
+    names.append('solids')
+  elif predictions[0][2] > window_threshold:
+    names.append('stripes')
+  else:
+    names.append('nothing')
+  interesting_count+=1
+"""
+
+plt.imshow(heatmap)
+for i in range(len(balls)):
+  plt.plot(int(balls[i][0]), int(balls[i][1]), 'ro')
+  plt.text(int(balls[i][0]), int(balls[i][1]), names[i])
+plt.show()
 ####
 
 
@@ -108,6 +151,8 @@ plt.show()
 
 # print(has_ball)
 
+
+#### PREVIOUSLY FRIDAY with sliding windows ###
 # CLASSIFY SMALLWINDOW
 fullheatmap = np.zeros((4*num_scans,2*num_scans,3))
 for i in range(len(has_ball)):
@@ -144,7 +189,6 @@ for i in range(len(has_ball)):
   fullheatmap[xt:(xt+num_scans), yt:(yt+num_scans), :] = heatmap
 
   # todo: on windows, use interpolation='none' to stop blurring effect
-  # ELB ^^^
 
     # todo: transpose the heatmaps before plotting
     #lovelyplot(heatmap[:,:,1], 'solidoutthresh', i)
