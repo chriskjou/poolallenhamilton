@@ -32,7 +32,7 @@ def ball_to_input(balls):
     return input
 
 # Neural Network Model (1 hidden layer)
-########## MAKE THIS LOGISTIC!!!!!!!!!!!!! ##################
+# logistic handled by 
 class Net(nn.Module):
     def __init__(self, input_size, hidden_size, num_classes):
         super(Net, self).__init__()
