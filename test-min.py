@@ -7,9 +7,8 @@ smallwindow_threshold = .5
 xt = 0
 yt = 0
 
-#file = open("elbytest/heatmap1.txt", "r")
-#heatmap = np.genfromtext("elbytest/test.csv")
-
+# file = open("elbytest/heatmap1.txt", "r")
+# heatmap = np.genfromtext("elbytest/test.csv")
 
 heatmap = []
 with open('elbytest/test.csv') as csvfile:
