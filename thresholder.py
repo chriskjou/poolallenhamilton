@@ -15,6 +15,15 @@ def lovelyplot(arr, name, bsq):
         plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
         plt.show()
 
+def uglyplot(arr, name, bsq):
+        plt.imshow(arr+1-1, vmin=0, vmax=1)
+        plt.colorbar()
+        plt.xlabel('long edge')
+        plt.ylabel('short edge')
+        plt.title(name)
+        plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
+        plt.show()
+
 class Thresholder:
     def __init__(self, heatmap, threshold, ballsquare):
         self.heatmap = heatmap
@@ -47,3 +56,20 @@ class Thresholder:
                 self.balls.append((name, ball[0], ball[1]))
         return self.balls
     # todo: also try skimage peak_local_max, imageJ findmaxima function
+
+    def general_thresh(self):
+        nb_sz = 2 # todo: play with this
+        # for solids and stripes
+        data = self.heatmap
+        uglyplot(data, 'threshold', self.ballsquare)
+        data_max = filters.maximum_filter(data, nb_sz)
+        maxima = (data == data_max)
+        data_min = filters.minimum_filter(data, nb_sz)
+        diff = ((data_max - data_min) > self.threshold)
+        maxima[diff == 0] = 0
+
+        labeled, num_objects = ndimage.label(diff)
+        xy = np.array(ndimage.center_of_mass(data, labeled, range(1, num_objects+1)))
+        for ball in xy:
+            self.balls.append((ball[1], ball[0]))
+        return self.balls
