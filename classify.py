@@ -1,21 +1,24 @@
-import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
 import sys
 import os
+import csv
 from pyimagesearch.helpers import sliding_window
 import argparse
-import time
 import cv2
-import glob
 import classify2
+<<<<<<< HEAD
 import classify3
 import utils2
 import matplotlib.pyplot as plt
+=======
+>>>>>>> c043cbfb703dc01e9f60658855d45cb2f49a3a54
 from thresholder import Thresholder, lovelyplot
-import csv
+
 
 ### TENSORFLOW SETUP
-# todo: disable tensorflow compilation warnings
+# TODO: disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 import tensorflow as tf
 
@@ -37,6 +40,10 @@ image = cv2.imread(args["image"])
 (winW, winH) = (smallwindow_size, smallwindow_size)
 
 ### cutting for now
+# I had difficulty getting ffmpeg to crop, so I'll do it here.
+if image.shape != (1580,790):
+  image = image[40:1620,60:850]
+
 # cut pool table into 8 images
 
 # eight_images = []
@@ -75,7 +82,6 @@ plt.show()
 
 ####
 
-# does 67 horizontal, 33 down
 
 # loads graph (assumed to be stored in ../logs)
 # with tf.gfile.FastGFile("../logs/trained_graph.pb", 'rb') as f:
@@ -86,6 +92,7 @@ plt.show()
 # # CLASSIFY BIGWINDOW
 # label_lines = [line.rstrip() for line
 #                    in tf.gfile.GFile("../logs/trained_labels.txt")]
+
 
 # where_balls = []
 # has_ball = []
@@ -105,6 +112,7 @@ plt.show()
 # CLASSIFY SMALLWINDOW
 fullheatmap = np.zeros((4*num_scans,2*num_scans,3))
 for i in range(len(has_ball)):
+
   heatmap = np.zeros((num_scans,num_scans,3))
 
   big_image = windows[i]
@@ -140,6 +148,7 @@ for i in range(len(has_ball)):
   # ELB ^^^
 
   # todo: transpose the heatmaps before plotting
+
   lovelyplot(heatmap[:,:,1], 'solidoutthresh', i)
   lovelyplot(heatmap[:,:,2], 'stripeoutthresh', i)
 
@@ -154,9 +163,7 @@ for i in range(len(has_ball)):
   lovelyplot(fullheatmap[:,:,2], 'stripefullheatmap', i)
 
 print("before transform", where_balls)
-
 where_balls = list(map(lambda ball: (ball[0], ball[1] * window_size/num_scans, ball[2] * window_size/num_scans), balls))
 print("after transform", where_balls)
-# todo: change coordinates in small 16 square to big square
-# todo: from total list of balls given by thresholder, annotate raw images
 
+# TODO: from total list of balls given by thresholder, annotate raw images
