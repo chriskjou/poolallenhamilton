@@ -8,12 +8,9 @@ from pyimagesearch.helpers import sliding_window
 import argparse
 import cv2
 import classify2
-<<<<<<< HEAD
 import classify3
 import utils2
 import matplotlib.pyplot as plt
-=======
->>>>>>> c043cbfb703dc01e9f60658855d45cb2f49a3a54
 from thresholder import Thresholder, lovelyplot
 
 
