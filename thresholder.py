@@ -7,13 +7,30 @@ import scipy.ndimage.filters as filters
 import matplotlib.pyplot as plt
 
 def lovelyplot(arr, name, bsq):
-        plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
-        plt.colorbar()
-        plt.xlabel('long edge')
-        plt.ylabel('short edge')
-        plt.title(name)
-        plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
-        plt.show()
+    plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
+    plt.colorbar()
+    plt.xlabel('long edge')
+    plt.ylabel('short edge')
+    plt.title(name)
+    plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
+    plt.show()
+
+def annotatePlot(arr, name, where_balls):
+    plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
+    plt.colorbar()
+    plt.xlabel('long edge')
+    plt.ylabel('short edge')
+    for each in where_balls:
+        if (each[0] == 'stripe' and name == 'stripefullwithboxes') or (each[0] == 'solid' and name == 'solidfullwithboxes'):
+            plt.plot(each[1],each[2], 'ro')
+            plt.text(each[1], each[2], each[0])
+    if name == 'stripefullwithboxes':
+        plt.title("stripeswithlabels")
+        plt.savefig("../memes/stripeswithlabels", vmin=0, vmax=1)
+    else:
+        plt.title("solidswithlabels")
+        plt.savefig("../memes/solidswithlabels", vmin=0, vmax=1)
+    plt.show()
 
 class Thresholder:
     def __init__(self, heatmap, threshold, ballsquare):
@@ -34,7 +51,7 @@ class Thresholder:
         for balltype in [1,2]:
             data = self.heatmap[:,:,balltype]
             name = 'stripe' if balltype - 1 else 'solid'
-            lovelyplot(data, name+'inthresh', self.ballsquare)
+            # lovelyplot(data, name+'inthresh', self.ballsquare)
             data_max = filters.maximum_filter(data, nb_sz)
             maxima = (data == data_max)
             data_min = filters.minimum_filter(data, nb_sz)
