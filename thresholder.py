@@ -34,15 +34,6 @@ def annotatePlot(arr, name, where_balls):
         plt.savefig("../memes/solidswithlabels", vmin=0, vmax=1)
     plt.show()
 
-def uglyplot(arr, name, bsq):
-        plt.imshow(arr+1-1, vmin=0, vmax=1)
-        plt.colorbar()
-        plt.xlabel('long edge')
-        plt.ylabel('short edge')
-        plt.title(name)
-        plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
-        plt.show()
-
 class Thresholder:
     def __init__(self, heatmap, threshold, ballsquare):
         self.heatmap = heatmap
@@ -119,5 +110,5 @@ def personalspace(heatmap,thresh):
         # print(maxprob)
         # plt.imshow(bustmap)
         # plt.show()
-    balls = list(map(lambda ball: (ball[1]-r,ball[r]-2), balls)) # flipped?
+    balls = list(map(lambda ball: (ball[1]-r,ball[0]-r), balls)) # flipped?
     return balls
