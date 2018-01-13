@@ -1,4 +1,4 @@
-# added a thresholder class so we can store multiple thresholding algos
+# Added a thresholder class so we can store multiple thresholding algos
 
 import numpy as np
 import scipy
@@ -6,6 +6,8 @@ import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 import matplotlib.pyplot as plt
 
+# If ever use this fn again, there may be weird transpose action going on
+# Clear it up once and for all
 def lovelyplot(arr, name, bsq):
     plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
     plt.colorbar()
@@ -78,13 +80,10 @@ class Thresholder:
         self.sortballs()
         return self.balls
 
-    # todo: also try skimage peak_local_max, imageJ findmaxima function
-
     def general_thresh(self):
-        nb_sz = 2 # todo: play with this
-        # for solids and stripes
+        nb_sz = 2
         data = self.heatmap
-        uglyplot(data, 'threshold', self.ballsquare)
+        #uglyplot(data.transpose(), 'threshold', self.ballsquare) # flipped?
         data_max = filters.maximum_filter(data, nb_sz)
         maxima = (data == data_max)
         data_min = filters.minimum_filter(data, nb_sz)
@@ -96,3 +95,29 @@ class Thresholder:
         for ball in xy:
             self.balls.append((ball[1], ball[0]))
         return self.balls
+
+# Personal Space Ballfinder
+r = 2 # radius of squisher
+squisher = np.array([[.51,.51,.51,.51,.51],[.51,.1,.1,.1,.51],[.51,.1,.01,.1,.51],[.51,.1,.1,.1,.51],[.51,.51,.51,.51,.51]])
+assert(squisher.shape[0] == 2 * r + 1)
+
+def personalspace(heatmap,thresh):
+    balls = []
+    bustmap = np.zeros((heatmap.shape[0]+2*r,heatmap.shape[1]+2*r))
+    bustmap[r:-r,r:-r] = heatmap
+    maxcoord = np.argmax(bustmap)
+    maxcoord = (maxcoord // bustmap.shape[1], maxcoord % bustmap.shape[1]) # converts into 2d
+    maxprob = bustmap[maxcoord[0],maxcoord[1]]
+    while(maxprob > thresh):
+        balls.append(maxcoord)
+        bustmap[(maxcoord[0]-r):(maxcoord[0]+r+1),(maxcoord[1]-r):(maxcoord[1]+r+1)] *= squisher
+        maxcoord = np.argmax(bustmap)
+        maxcoord = (maxcoord // bustmap.shape[1], maxcoord % bustmap.shape[1])
+        maxprob = bustmap[maxcoord[0],maxcoord[1]]
+        # print(bustmap)
+        # print(maxcoord)
+        # print(maxprob)
+        # plt.imshow(bustmap)
+        # plt.show()
+    balls = list(map(lambda ball: (ball[1]-r,ball[r]-2), balls)) # flipped?
+    return balls
