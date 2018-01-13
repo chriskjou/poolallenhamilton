@@ -17,6 +17,7 @@ def lovelyplot(arr, name, bsq):
     plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
     plt.show()
 
+"""
 def annotatePlot(arr, name, where_balls):
     plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
     plt.colorbar()
@@ -33,6 +34,7 @@ def annotatePlot(arr, name, where_balls):
         plt.title("solidswithlabels")
         plt.savefig("../memes/solidswithlabels", vmin=0, vmax=1)
     plt.show()
+"""
 
 def uglyplot(arr, name, bsq):
         plt.imshow(arr+1-1, vmin=0, vmax=1)
@@ -119,5 +121,5 @@ def personalspace(heatmap,thresh):
         # print(maxprob)
         # plt.imshow(bustmap)
         # plt.show()
-    balls = list(map(lambda ball: (ball[1]-r,ball[r]-2), balls)) # flipped?
+    balls = list(map(lambda ball: (ball[1]-r,ball[0]-r), balls)) # flipped?
     return balls

@@ -117,53 +117,10 @@ for ball in balls:
 
   names.append(labels[index])
   interesting_count += 1
-"""
-  maxnum = predictions[0][0]
-  index = 0
-  for i in range(1, 17):
-      if maxnum < predictions[0][i]:
-        maxnum = predictions[0][i]
-        index = i
 
-  if index == 0:
-    names.append('blacksolid')
-  elif index == 1:
-    names.append('bluesolid')
-  elif index == 2:
-    names.append('bluestripe')
-  elif index == 3:
-    names.append('greensolid')
-  elif index == 4:
-    names.append('greenstripe')
-  elif index == 5:
-    names.append('neither')
-  elif index == 6:
-    names.append('orangesolid')
-  elif index == 7:
-    names.append('orangestripe')
-  elif index == 8:
-    names.append('pinksolid')
-  elif index == 9:
-    names.append('pinkstripe')
-  elif index == 10:
-    names.append('purplesolid')
-  elif index == 11:
-    names.append('purplestripe')
-  elif index == 12:
-    names.append('redsolid')
-  elif index == 13:
-    names.append('redstripe')
-  elif index == 14:
-    names.append('white')
-  elif index == 15:
-    names.append('yellowsolid')
-  else:
-    names.append('yellowstripe')
-    """
-
-f = open("../memes/where_balls_transform%d.txt" % 0,"w")
-f.write(str(where_balls))
-f.close()
+# f = open("../memes/where_balls_transform%d.txt" % 0,"w")
+# f.write(str(where_balls))
+# f.close()
 
 # todo: change coordinates in small 16 square to big square
 # todo: from total list of balls given by thresholder, annotate raw images
