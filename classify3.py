@@ -26,7 +26,6 @@ import matplotlib.pyplot as plt
 model = load_model('models/model4.h5')
 
 def isball(image):
-
   image = image.reshape((1,24,24,3))
   predictions = model.predict(image)
   return predictions[0]

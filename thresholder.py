@@ -1,4 +1,4 @@
-# added a thresholder class so we can store multiple thresholding algos
+# Added a thresholder class so we can store multiple thresholding algos
 
 import numpy as np
 import scipy
@@ -8,22 +8,13 @@ import matplotlib.pyplot as plt
 
 def lovelyplot(arr, name, bsq):
     # on windows, use interpolation='none' to stop blurring effect
-    plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
+    plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1) # flipped?
     plt.colorbar()
     plt.xlabel('long edge')
     plt.ylabel('short edge')
     plt.title(name)
     plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
     plt.show()
-
-def uglyplot(arr, name, bsq):
-        plt.imshow(arr+1-1, vmin=0, vmax=1)
-        plt.colorbar()
-        plt.xlabel('long edge')
-        plt.ylabel('short edge')
-        plt.title(name)
-        plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
-        plt.show()
 
 class Thresholder:
     def __init__(self, heatmap, threshold, ballsquare):
@@ -62,13 +53,10 @@ class Thresholder:
         self.sortballs()
         return self.balls
 
-    # todo: also try skimage peak_local_max, imageJ findmaxima function
-
     def general_thresh(self):
-        nb_sz = 2 # todo: play with this
-        # for solids and stripes
+        nb_sz = 2
         data = self.heatmap
-        #uglyplot(data, 'threshold', self.ballsquare)
+        #uglyplot(data.transpose(), 'threshold', self.ballsquare) # flipped?
         data_max = filters.maximum_filter(data, nb_sz)
         maxima = (data == data_max)
         data_min = filters.minimum_filter(data, nb_sz)
@@ -81,33 +69,28 @@ class Thresholder:
             self.balls.append((ball[1], ball[0]))
         return self.balls
 
-# thresh = 1.5
-# heatmap = np.ones((48,24))
-# heatmap[35,21] = 2
-# heatmap[1,1] = 2
-# heatmap[8,3] = 2
-
+# Personal Space Ballfinder
+r = 2 # radius of squisher
 squisher = np.array([[.51,.51,.51,.51,.51],[.51,.1,.1,.1,.51],[.51,.1,.01,.1,.51],[.51,.1,.1,.1,.51],[.51,.51,.51,.51,.51]])
+assert(squisher.shape[0] == 2 * r + 1)
 
-# add probabilities
 def personalspace(heatmap,thresh):
     balls = []
-    bustmap = np.zeros((heatmap.shape[0]+4,heatmap.shape[1]+4))
-    bustmap[2:-2,2:-2] = heatmap
+    bustmap = np.zeros((heatmap.shape[0]+2*r,heatmap.shape[1]+2*r))
+    bustmap[r:-r,r:-r] = heatmap
     maxcoord = np.argmax(bustmap)
     maxcoord = (maxcoord // bustmap.shape[1], maxcoord % bustmap.shape[1]) # converts into 2d
     maxprob = bustmap[maxcoord[0],maxcoord[1]]
     while(maxprob > thresh):
         balls.append(maxcoord)
-        bustmap[maxcoord[0]-2:maxcoord[0]+3,maxcoord[1]-2:maxcoord[1]+3] *= squisher
-
+        bustmap[(maxcoord[0]-r):(maxcoord[0]+r+1),(maxcoord[1]-r):(maxcoord[1]+r+1)] *= squisher
         maxcoord = np.argmax(bustmap)
-        maxcoord = (maxcoord // bustmap.shape[1], maxcoord % bustmap.shape[1]) # converts into 2d
+        maxcoord = (maxcoord // bustmap.shape[1], maxcoord % bustmap.shape[1])
         maxprob = bustmap[maxcoord[0],maxcoord[1]]
         # print(bustmap)
         # print(maxcoord)
         # print(maxprob)
-        plt.imshow(bustmap) # mpl y u no work?
-        plt.show()
-    balls = list(map(lambda ball: (ball[1]-2,ball[0]-2), balls))
+        # plt.imshow(bustmap)
+        # plt.show()
+    balls = list(map(lambda ball: (ball[1]-r,ball[r]-2), balls)) # flipped?
     return balls
