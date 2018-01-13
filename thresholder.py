@@ -6,6 +6,8 @@ import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 import matplotlib.pyplot as plt
 
+# If ever use this fn again, there may be weird transpose action going on
+# Clear it up once and for all
 def lovelyplot(arr, name, bsq):
     # on windows, use interpolation='none' to stop blurring effect
     plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1) # flipped?
