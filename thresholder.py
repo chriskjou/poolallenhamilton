@@ -17,6 +17,7 @@ def lovelyplot(arr, name, bsq):
     plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
     plt.show()
 
+"""
 def annotatePlot(arr, name, where_balls):
     plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
     plt.colorbar()
@@ -33,6 +34,7 @@ def annotatePlot(arr, name, where_balls):
         plt.title("solidswithlabels")
         plt.savefig("../memes/solidswithlabels", vmin=0, vmax=1)
     plt.show()
+"""
 
 class Thresholder:
     def __init__(self, heatmap, threshold, ballsquare):
