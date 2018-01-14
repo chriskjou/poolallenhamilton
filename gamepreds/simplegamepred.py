@@ -4,6 +4,7 @@ import torch.nn as nn
 import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 from torch.autograd import Variable
+from ../readercleaner import get_data1
 # x is the long dimension
 
 def closest_pocket(ball):
@@ -62,13 +63,19 @@ net = Net(input_size, hidden_size, num_classes)
 criterion = nn.CrossEntropyLoss()  
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)  
 
-# TODO: make train_data a list of [states, winners]
-# or figure out some other way
-
+# change all this
+data = get_data1(0,4) # just get 4 games for now
+train_data = data.iloc[:4]
+test_data = data.iloc[4:]
 
 # Train the Model
 for epoch in range(num_epochs):
-    for states, winners in train_data: 
+    for i in range(0, train_data.shape[0], batch_size): 
+        batch = train_data.iloc[i:i+batch_size]
+        # states and winners tensors
+        states = torch.Tensor(batch.loc[:,batch.columns != 'winner'].as_matrix())
+        winners = torch.Tensor(batch['winner'].as_matrix())
+
         # Convert torch tensor to Variable
         states = Variable(states.view(-1, input_size))
         winners = Variable(winners)
@@ -87,7 +94,12 @@ for epoch in range(num_epochs):
 # Test the Model
 correct = 0
 total = 0
-for states, winners in test_data:
+for i in range(0, test_data.shape[0], batch_size):
+    batch = test_data.iloc[i:i+batch_size]
+    # states and winners tensors
+    states = torch.Tensor(batch.loc[:,batch.columns != 'winner'].as_matrix())
+    winners = torch.Tensor(batch['winner'].as_matrix())
+
     states = Variable(states.view(-1, input_size))
     outputs = net(states)
     _, predicted = torch.max(outputs.data, 1)
