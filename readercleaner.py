@@ -66,12 +66,12 @@ def get_data1(start, end):
         winner = int(meta[2]==meta[3])
         csvs = glob.glob(gamepath+'/frame*.csv')
         for csv in csvs:
-            imgdf = get_image_data(csvpath)
+            imgdf = get_image_data(csv)
             ct = imgdf['balltype'].value_counts()
             df.append({'numstripe':ct.stripe,'numsolid':ct.solid,'winner':winner}, ignore_index=True)
     return df
 
-
+# d2
 def closest_pocket(ball):
     d = 2000
     for pocket in [(0,0),(790,0),(1580,0),(0,790),(790,790),(1580,790)]:
@@ -99,7 +99,7 @@ def get_data2(start, end):
         winner = int(meta[2]==meta[3])
         csvs = glob.glob(gamepath+'/frame*.csv')
         for csv in csvs:
-            imgdf = get_image_data(csvpath)
+            imgdf = get_image_data(csv)
             imgdf['diff'] = imgdf.apply(zone, axis=1)
             imgdf = imgdf.groupby(['balltype','diff'])
             newrow = np.zeros(len(cols)+1)
@@ -109,3 +109,28 @@ def get_data2(start, end):
             df.loc(len(df)) = newrow
     return df
 
+# analytical difficulty
+def difficulty(ball, cue):
+    pass
+
+# numstripes, numsolids, d2 for each stripe, d2 for each solid 
+# each ball ordered by difficulty
+def get_data3(start, end):
+    df = pd.DataFrame(columns=['numstripe','numsolid']+['stripe'+str(i) for i in range(7)]+['solid'+str(i) for i in range(7)])
+    for i in range(start, end):
+        gamepath = folders[i]
+        meta = get_meta(gamepath)
+        winner = int(meta[2]==meta[3])
+        csvs = glob.glob(gamepath+'/frame*.csv')
+        for csv in csvs:
+            imgdf = get_image_data(csv)
+            imgdf['d2'] = imgdf.apply(closes_pocket, axis=1)
+            stripedf = imgdf[imgdf['balltype']=='stripe'].sort_values(by='d2')
+            soliddf = imgdf[imgdf['balltype']=='solid'].sort_values(by='d2')
+            newrow = np.zeros(17)
+            newrow[-1] = winner
+            newrow[:2] = [len(stripedf),len(soliddf)]
+            newrow[2:(2+len(stripedf))] = stripedf['d2']
+            newrow[9:(9+len(soliddf))] = soliddf['d2']
+            df.loc(len(df)) = newrow
+    return df

@@ -8,22 +8,22 @@ from ../readercleaner import get_data1
 # x is the long dimension
 
 # To change to 6 features, simply change input_size and get_data() call
+# To change to "variable length" NN, it's the same idea
+# To change to logistic regression, only have a fc and softmax layer
 
 # Neural Network Model (1 hidden layer)
-# logistic handled by 
 class Net(nn.Module):
     def __init__(self, input_size, hidden_size, num_classes):
         super(Net, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size) 
         self.relu = nn.ReLU()
         self.fc2 = nn.Linear(hidden_size, num_classes)
-        self.softmax = nn.Softmax()
+        # i don't need Softmax here, CE loss takes care of it
         
     def forward(self, x):
         out = self.fc1(x)
         out = self.relu(out)
         out = self.fc2(out)
-        out = self.softmax(out)
         return out
 
 # Hyper Parameters
