@@ -27,6 +27,14 @@ def get_image_data(csvpath):
         df = df.append({'balltype':'eight','x':eightmean.x,'y':eightmean.y}, ignore_index=True)
     return df
 
+def get_meta(gamepath):
+    metacsv = glob.glob(gamepath+'*_meta.csv')[0]
+    with open(metacsv) as metafile:
+        reader = csv.reader(metafile)
+        _ = next(reader)
+        meta = next(reader)
+    return meta
+
 # type, x, y, frame, winner (1 if stripes wins)
 def get_game_data(gamepath):
     def append_frame(csvpath, i):
@@ -35,11 +43,7 @@ def get_game_data(gamepath):
         return df
     csvs = glob.glob(gamepath+'/frame*.csv')
     df = pd.concat([append_frame(csvs[i],i) for i in range(len(csvs))], ignore_index=True) # untested
-    metacsv = glob.glob(gamepath+'*_meta.csv')[0]
-    with open(metacsv) as metafile:
-        reader = csv.reader(metafile)
-        _ = next(reader)
-        meta = next(reader)
+    meta = get_meta(gamepath)
     winner = int(meta[2]==meta[3])
     df['winner'] = winner
 
@@ -58,16 +62,50 @@ def get_data1(start, end):
     df = pd.DataFrame(columns=['numstripe','numsolid','winner'])
     for i in range(start, end):
         gamepath = folders[i]
-        metacsv = glob.glob(gamepath+'*_meta.csv')[0]
-        with open(metacsv) as metafile:
-            reader = csv.reader(metafile)
-            _ = next(reader)
-            meta = next(reader)
+        meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
         csvs = glob.glob(gamepath+'/frame*.csv')
         for csv in csvs:
             imgdf = get_image_data(csvpath)
             ct = imgdf['balltype'].value_counts()
             df.append({'numstripe':ct.stripe,'numsolid':ct.solid,'winner':winner}, ignore_index=True)
+    return df
+
+
+def closest_pocket(ball):
+    d = 2000
+    for pocket in [(0,0),(790,0),(1580,0),(0,790),(790,790),(1580,790)]:
+        d_p = np.sqrt((ball['x']-d[0])**2+(ball['y']-d[1])**2)
+        d = d_p if d_p < p else d_p
+    return d
+
+# 0 for easy, 1 for med, 2 for hard
+def zone(ball):
+    d = closest_pocket(ball)
+    if d < 20:
+        return 0
+    elif d < 50:
+        return 1
+    else:
+        return 2
+
+# easystripe, easysolid, medstripe, medsolid, hardstripe, hardsolid, winner
+def get_data2(start, end):
+    df = pd.DataFrame(columns = ['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid','winner'])
+    cols = [('stripe','easy'),('solid','easy'),('stripe','med'),('solid','med'),('stripe','hard'),('solid','hard')]
+    for i in range(start, end):
+        gamepath = folders[i]
+        meta = get_meta(gamepath)
+        winner = int(meta[2]==meta[3])
+        csvs = glob.glob(gamepath+'/frame*.csv')
+        for csv in csvs:
+            imgdf = get_image_data(csvpath)
+            imgdf['diff'] = imgdf.apply(zone, axis=1)
+            imgdf = imgdf.groupby(['balltype','diff'])
+            newrow = np.zeros(len(cols)+1)
+            newrow[-1] = winner
+            for x in range(len(cols)):
+                newrow[x] = imgdf.loc(cols[x])[0]
+            df.loc(len(df)) = newrow
     return df
 

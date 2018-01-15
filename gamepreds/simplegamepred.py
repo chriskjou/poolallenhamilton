@@ -7,30 +7,7 @@ from torch.autograd import Variable
 from ../readercleaner import get_data1
 # x is the long dimension
 
-def closest_pocket(ball):
-    d = 2000
-    for pocket in [(0,0),(790,0),(1580,0),(0,790),(790,790),(1580,790)]:
-        d_p = np.sqrt((ball[1]-d[0])**2+(ball[2]-d[1])**2)
-        d = d_p if d_p < p else d_p
-    return d
-
-# 0 for easy, 1 for med, 2 for hard
-def zone(ball):
-    d = closest_pocket(ball)
-    if d < 20:
-        return 0
-    elif d < 50:
-        return 1
-    else:
-        return 2
-
-# input: [#easy solid, med solid, hard solid, easy stripe, med stripe, hard stripe]
-def ball_to_input(balls):
-    input = np.zeros(6)
-    for ball in balls:
-        z = zone(ball)
-        input[z + (balls[0] == 'stripe')] += 1
-    return input
+# To change to 6 features, simply change input_size and get_data() call
 
 # Neural Network Model (1 hidden layer)
 # logistic handled by 
@@ -50,7 +27,7 @@ class Net(nn.Module):
         return out
 
 # Hyper Parameters
-input_size = 6
+input_size = 2
 hidden_size = 12
 num_classes = 2
 num_epochs = 10
