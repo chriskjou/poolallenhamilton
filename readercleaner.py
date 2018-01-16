@@ -3,7 +3,8 @@ import pandas as pd
 import glob
 import csv
 
-folders = glob.glob('../cropped_images_ff/*')
+# change to suit your own needs
+folders = glob.glob('/home/wintern18/Desktop/cropped_images_ff/*')
 folders.sort()
 
 # type, x, y
@@ -14,18 +15,9 @@ def get_image_data(csvpath):
     df['y'] *= 395/16
     # Eliminate neithers
     df = df[df['balltype'] != 'neither']
-    # Eliminate duplicate cueballs by averaging their position
-    # TODO: just pick the first one instead of averaging
-    cueballs = df[df['balltype']=='cue']
-    if not cueballs.empty:
-        df = df[df['balltype'] != 'cue']
-        cuemean = cueballs.mean()
-        df = df.append({'balltype':'cue','x':cuemean.x,'y':cuemean.y}, ignore_index=True)
-    eightballs = df[df['balltype']=='eight']
-    if not eightballs.empty:
-        df = df[df['balltype'] != 'eight']
-        eightmean = eightballs.mean()
-        df = df.append({'balltype':'eight','x':eightmean.x,'y':eightmean.y}, ignore_index=True)
+    # Eliminate duplicate cueballs by picking the first one
+    df = df.drop(df[df['balltype']=='cue'].index[1:])
+    df = df.drop(df[df['balltype']=='eight_ball'].index[1:])
     return df
 
 def get_meta(gamepath):
@@ -36,7 +28,6 @@ def get_meta(gamepath):
         meta = next(reader)
     return meta
 
-# TODO: throw out the first frame, the break
 # idea: duplicate later frames! (or just give it the second half of the game?)
 # type, x, y, frame, winner (1 if stripes wins)
 def get_game_data(gamepath):
@@ -44,9 +35,10 @@ def get_game_data(gamepath):
         df = get_image_data(csvpath)
         df['frame'] = i
         return df
-    nframes = len(glob.glob(gamepath+'/frame*'))/2
+    nframes = len(glob.glob(gamepath+'/frame*'))//2
     csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
     df = pd.concat([append_frame(csvs[i],i) for i in range(len(csvs))], ignore_index=True) # untested
+    df.drop([0,1,2]) # drop first 3 frames
     meta = get_meta(gamepath)
     winner = int(meta[2]==meta[3])
     df['winner'] = winner
@@ -69,6 +61,7 @@ def get_data1(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
+        nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
         for csv in csvs:
             imgdf = get_image_data(csv)
@@ -78,6 +71,8 @@ def get_data1(start, end):
             newrow[1] = ct.solids if 'solids' in ct.index else 0
             newrow[2] = winner
             newrow[3] = i
+            if newrow[0] > 8 or newrow[1] > 8:
+                continue # TODO: implement this for the other one too
             df.loc[len(df)] = newrow
     return df
 
@@ -135,6 +130,7 @@ def get_data2(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
+        nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
         for csv in csvs:
             imgdf = get_image_data(csv)
@@ -158,6 +154,7 @@ def get_data3(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
+        nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
         for csv in csvs:
             imgdf = get_image_data(csv)
