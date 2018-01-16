@@ -3,8 +3,8 @@ import pandas as pd
 import glob
 import csv
 
-# untested
-folders = glob.glob('../../cropped_images_ff/*').sort()
+folders = glob.glob('../cropped_images_ff/*')
+folders.sort()
 
 # type, x, y
 def get_image_data(csvpath):
@@ -29,7 +29,7 @@ def get_image_data(csvpath):
     return df
 
 def get_meta(gamepath):
-    metacsv = glob.glob(gamepath+'*_meta.csv')[0]
+    metacsv = glob.glob(gamepath+'/*_meta.csv')[0]
     with open(metacsv) as metafile:
         reader = csv.reader(metafile)
         _ = next(reader)
@@ -44,11 +44,14 @@ def get_game_data(gamepath):
         df = get_image_data(csvpath)
         df['frame'] = i
         return df
-    csvs = glob.glob(gamepath+'/frame*.csv')
+    csvs = glob.glob(gamepath+'/frame[0-9]')
+    csvs += glob.glob(gamepath+'/frame[0-9][0-9]')
+    csvs.sort()
     df = pd.concat([append_frame(csvs[i],i) for i in range(len(csvs))], ignore_index=True) # untested
     meta = get_meta(gamepath)
     winner = int(meta[2]==meta[3])
     df['winner'] = winner
+    return df
 
 # type, x, y, frame, winner, game
 def get_data(start, end):
@@ -67,11 +70,18 @@ def get_data1(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
-        csvs = glob.glob(gamepath+'/frame*.csv')
+        csvs = glob.glob(gamepath+'/frame[0-9]')
+        csvs += glob.glob(gamepath+'/frame[0-9][0-9]')
+        csvs.sort()
         for csv in csvs:
             imgdf = get_image_data(csv)
             ct = imgdf['balltype'].value_counts()
-            df.append({'numstripe':ct.stripe,'numsolid':ct.solid,'winner':winner,'game':game}, ignore_index=True)
+            newrow = np.zeros(4)
+            newrow[0] = ct.stripes if 'stripes' in ct.index else 0
+            newrow[1] = ct.solids if 'solids' in ct.index else 0
+            newrow[2] = winner
+            newrow[3] = i
+            df.loc[len(df)] = newrow
     return df
 
 ################
@@ -109,6 +119,7 @@ def diff1(ball, cue):
         d = d2 if d2 < d else d2
     # TODO: what about obstacle balls?
 
+# TODO: change these thresholds
 # 0 for easy, 1 for med, 2 for hard
 def zone(ball):
     d = diff(ball)
@@ -122,47 +133,55 @@ def zone(ball):
 # easystripe, easysolid, medstripe, medsolid, hardstripe, hardsolid, winner, game
 def get_data2(start, end):
     df = pd.DataFrame(columns = ['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid','winner','game'])
-    cols = [('stripe','easy'),('solid','easy'),('stripe','med'),('solid','med'),('stripe','hard'),('solid','hard')]
+    cols = [('stripes',0),('solids',0),('stripes',1),('solids',1),('stripes',2),('solids',2)]
     for i in range(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
-        csvs = glob.glob(gamepath+'/frame*.csv')
+        csvs = glob.glob(gamepath+'/frame[0-9]')
+        csvs += glob.glob(gamepath+'/frame[0-9][0-9]')
+        csvs.sort()
         for csv in csvs:
             imgdf = get_image_data(csv)
             imgdf['diff'] = imgdf.apply(zone, axis=1)
-            imgdf = imgdf.groupby(['balltype','diff'])
+            imgdf = imgdf.groupby(['balltype','diff']).count()
             newrow = np.zeros(len(cols)+2)
             newrow[-2] = winner
             newrow[-1] = i
             for x in range(len(cols)):
-                newrow[x] = imgdf.loc(cols[x])[0]
-            df.loc(len(df)) = newrow
+                newrow[x] = imgdf.loc[cols[x]][0] if cols[x] in imgdf.index else 0
+            df.loc[len(df)] = newrow
     return df
 
 # TODO: eight ball???
+# TODO: what if more than 7 stripes/solids?
 # numstripes, numsolids, d2 for each stripe, d2 for each solid, winner, game
 # each ball ordered by difficulty
 def get_data3(start, end):
-    df = pd.DataFrame(columns=['numstripe','numsolid']+['stripe'+str(i) for i in range(7)]+['solid'+str(i) for i in range(7)]+
-        ['winner','game'])
+    df = pd.DataFrame(columns=['numstripe','numsolid']+['stripe'+str(i) for i in range(7)]+['solid'+str(i) for i in range(7)]+['winner','game'])
     for i in range(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
-        csvs = glob.glob(gamepath+'/frame*.csv')
+        csvs = glob.glob(gamepath+'/frame[0-9]')
+        csvs += glob.glob(gamepath+'/frame[0-9][0-9]')
+        csvs.sort()
         for csv in csvs:
             imgdf = get_image_data(csv)
             # cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
             # imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
             imgdf['diff'] = imgdf.apply(diff, axis=1)
-            stripedf = imgdf[imgdf['balltype']=='stripe'].sort_values(by='diff')
-            soliddf = imgdf[imgdf['balltype']=='solid'].sort_values(by='diff')
+            stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='diff')
+            soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='diff')
+            stripedf = stripedf.iloc[0:7]
+            soliddf = soliddf.iloc[0:7]
             newrow = np.zeros(18)
             newrow[-2] = winner
-            newrow[-1] = game
+            newrow[-1] = i
             newrow[:2] = [len(stripedf),len(soliddf)]
             newrow[2:(2+len(stripedf))] = stripedf['diff']
             newrow[9:(9+len(soliddf))] = soliddf['diff']
-            df.loc(len(df)) = newrow
+            df.loc[len(df)] = newrow
     return df
+
+print(get_data(0,4))
