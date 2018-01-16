@@ -20,4 +20,4 @@ data = get_data2(0,4)
 for index, row in df.iterrows():
     pass
 
-
+# a way to calculate probabilities of reaching absorbing states

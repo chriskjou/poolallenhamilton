@@ -115,9 +115,9 @@ def diff1(ball, cue):
 # 0 for easy, 1 for med, 2 for hard
 def zone(ball):
     d = diff(ball)
-    if d < 20:
+    if d < 200:
         return 0
-    elif d < 50:
+    elif d < 430:
         return 1
     else:
         return 2

@@ -10,11 +10,11 @@ sys.path.insert(0, '../')
 from readercleaner import get_data1
 
 # rather, for pool
-input_dim = 2
-hidden_dim = 5
+input_dim = 6
+hidden_dim = 12
 output_dim = 1
-model_dir = '2dim_Logistic_model.json'
-weights_dir = '2dim_Logistic_wts.h5'
+model_dir = '6dim_Logistic_model.json'
+weights_dir = '6dim_Logistic_wts.h5'
 train_data = get_data1(0,200)
 X_train = train_data[['numstripe','numsolid']].as_matrix()
 Y_train = train_data[['winner']].as_matrix()
@@ -22,6 +22,7 @@ test_data = get_data1(200,250)
 X_test = test_data[['numstripe','numsolid']].as_matrix()
 Y_test = test_data[['winner']].as_matrix()
 
+# is it ok if i don't convert class vectors to binary class matrices?
 # Y_train = np_utils.to_categorical(y_train, nb_classes)
 # Y_test = np_utils.to_categorical(y_test, nb_classes)
 
@@ -29,6 +30,7 @@ print("X size", X_train.shape)
 print("Y size", Y_train.shape)
 
 # build the model
+
 model = Sequential()
 model.add(Dense(hidden_dim, input_dim=input_dim, activation='sigmoid')) # changed from softmax
 model.add(Dense(output_dim, activation='sigmoid'))
