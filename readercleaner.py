@@ -44,9 +44,8 @@ def get_game_data(gamepath):
         df = get_image_data(csvpath)
         df['frame'] = i
         return df
-    csvs = glob.glob(gamepath+'/frame[0-9]')
-    csvs += glob.glob(gamepath+'/frame[0-9][0-9]')
-    csvs.sort()
+    nframes = len(glob.glob(gamepath+'/frame*'))/2
+    csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
     df = pd.concat([append_frame(csvs[i],i) for i in range(len(csvs))], ignore_index=True) # untested
     meta = get_meta(gamepath)
     winner = int(meta[2]==meta[3])
@@ -70,9 +69,7 @@ def get_data1(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
-        csvs = glob.glob(gamepath+'/frame[0-9]')
-        csvs += glob.glob(gamepath+'/frame[0-9][0-9]')
-        csvs.sort()
+        csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
         for csv in csvs:
             imgdf = get_image_data(csv)
             ct = imgdf['balltype'].value_counts()
@@ -138,9 +135,7 @@ def get_data2(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
-        csvs = glob.glob(gamepath+'/frame[0-9]')
-        csvs += glob.glob(gamepath+'/frame[0-9][0-9]')
-        csvs.sort()
+        csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
         for csv in csvs:
             imgdf = get_image_data(csv)
             imgdf['diff'] = imgdf.apply(zone, axis=1)
@@ -163,9 +158,7 @@ def get_data3(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
         winner = int(meta[2]==meta[3])
-        csvs = glob.glob(gamepath+'/frame[0-9]')
-        csvs += glob.glob(gamepath+'/frame[0-9][0-9]')
-        csvs.sort()
+        csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
         for csv in csvs:
             imgdf = get_image_data(csv)
             # cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
