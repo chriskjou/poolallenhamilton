@@ -55,11 +55,11 @@ def get_data(start, end):
         return df
     return pd.concat([append_game(i) for i in range(start, end)], ignore_index=True) # untested
 
+################
 
-
-# numstripe, numsolid, winner
+# numstripe, numsolid, winner, game
 def get_data1(start, end):
-    df = pd.DataFrame(columns=['numstripe','numsolid','winner'])
+    df = pd.DataFrame(columns=['numstripe','numsolid','winner', 'game'])
     for i in range(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
@@ -68,20 +68,47 @@ def get_data1(start, end):
         for csv in csvs:
             imgdf = get_image_data(csv)
             ct = imgdf['balltype'].value_counts()
-            df.append({'numstripe':ct.stripe,'numsolid':ct.solid,'winner':winner}, ignore_index=True)
+            df.append({'numstripe':ct.stripe,'numsolid':ct.solid,'winner':winner,'game':game}, ignore_index=True)
     return df
 
+################
+
+pockets = [[0,0],[790,0],[1580,0],[0,790],[790,790],[1580,790]]
+
+# from https://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python
+def unit_vector(vector):
+    return vector / np.linalg.norm(vector)
+
+def angle_between(v1, v2):
+    v1_u = unit_vector(v1)
+    v2_u = unit_vector(v2)
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
 # d2
-def closest_pocket(ball):
-    d = 2000
-    for pocket in [(0,0),(790,0),(1580,0),(0,790),(790,790),(1580,790)]:
-        d_p = np.sqrt((ball['x']-d[0])**2+(ball['y']-d[1])**2)
-        d = d_p if d_p < p else d_p
+def diff(ball):
+    d = 2000 # artificially high number
+    ball = ball[['x','y']].values
+    for pocket in pockets:
+        d2 = np.linalg.norm(pocket - ball)
+        d = d2 if d2 < d else d2
     return d
+
+# analytical difficulty (other formulae also exist)
+def diff1(ball, cue):
+    d = 2000 # artificially high number
+    ball = ball[['x','y']].values
+    cue = cue.values
+    for pocket in pockets:
+        theta = angle_between(cue)
+        d1 = np.linalg.norm(ball - cue)
+        d2 = np.linalg.norm(pocket - ball)
+        diff = np.cos(theta) / d1 / d2
+        d = d2 if d2 < d else d2
+    # TODO: what about obstacle balls?
 
 # 0 for easy, 1 for med, 2 for hard
 def zone(ball):
-    d = closest_pocket(ball)
+    d = diff(ball)
     if d < 20:
         return 0
     elif d < 50:
@@ -109,10 +136,6 @@ def get_data2(start, end):
             df.loc(len(df)) = newrow
     return df
 
-# analytical difficulty
-def difficulty(ball, cue):
-    pass
-
 # numstripes, numsolids, d2 for each stripe, d2 for each solid 
 # each ball ordered by difficulty
 def get_data3(start, end):
@@ -124,13 +147,15 @@ def get_data3(start, end):
         csvs = glob.glob(gamepath+'/frame*.csv')
         for csv in csvs:
             imgdf = get_image_data(csv)
-            imgdf['d2'] = imgdf.apply(closes_pocket, axis=1)
-            stripedf = imgdf[imgdf['balltype']=='stripe'].sort_values(by='d2')
-            soliddf = imgdf[imgdf['balltype']=='solid'].sort_values(by='d2')
+            # cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
+            # imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
+            imgdf['diff'] = imgdf.apply(diff, axis=1)
+            stripedf = imgdf[imgdf['balltype']=='stripe'].sort_values(by='diff')
+            soliddf = imgdf[imgdf['balltype']=='solid'].sort_values(by='diff')
             newrow = np.zeros(17)
             newrow[-1] = winner
             newrow[:2] = [len(stripedf),len(soliddf)]
-            newrow[2:(2+len(stripedf))] = stripedf['d2']
-            newrow[9:(9+len(soliddf))] = soliddf['d2']
+            newrow[2:(2+len(stripedf))] = stripedf['diff']
+            newrow[9:(9+len(soliddf))] = soliddf['diff']
             df.loc(len(df)) = newrow
     return df
