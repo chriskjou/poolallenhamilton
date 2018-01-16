@@ -99,8 +99,7 @@ for folder in folders:
     for ball in balls:
       xcoord = int(ball[0] * smallwindow_step)
       ycoord = int(ball[1] * smallwindow_step)
-      small_image = new_image[max(ycoord, 0): min(ycoord + smallwindow_size, 780), max(xcoord, 0): min(xcoord + smallwindow_size, 1580)]
-      # elby: i have a question. where do 780 and 1580 come from? (shouldn't it be 790 and 1580?). delete comment once you answer
+      small_image = new_image[max(ycoord, 0): min(ycoord + smallwindow_size, 790), max(xcoord, 0): min(xcoord + smallwindow_size, 1580)]
       predictions = classify2.isball(small_image)
       small_image = cv2.cvtColor(small_image, cv2.COLOR_BGR2RGB)
       #cv2.imwrite("interestingnew%d.jpg" % interesting_count, small_image)

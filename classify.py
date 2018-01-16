@@ -90,7 +90,7 @@ names = []
 for ball in balls:
   xcoord = int(ball[0] * smallwindow_step)
   ycoord = int(ball[1] * smallwindow_step)
-  small_image = new_image[max(ycoord, 0): min(ycoord + smallwindow_size, 780), max(xcoord, 0): min(xcoord + smallwindow_size, 1580)]
+  small_image = new_image[max(ycoord, 0): min(ycoord + smallwindow_size, 790), max(xcoord, 0): min(xcoord + smallwindow_size, 1580)]
   predictions = classify2.isball(small_image)
   small_image = cv2.cvtColor(small_image, cv2.COLOR_BGR2RGB)
   cv2.imwrite("interestingnew%d.jpg" % interesting_count, small_image)
