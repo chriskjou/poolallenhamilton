@@ -15,6 +15,7 @@ def get_image_data(csvpath):
     # Eliminate neithers
     df = df[df['balltype'] != 'neither']
     # Eliminate duplicate cueballs by averaging their position
+    # TODO: just pick the first one instead of averaging
     cueballs = df[df['balltype']=='cue']
     if not cueballs.empty:
         df = df[df['balltype'] != 'cue']
@@ -35,6 +36,7 @@ def get_meta(gamepath):
         meta = next(reader)
     return meta
 
+# TODO: throw out the first frame, the break
 # type, x, y, frame, winner (1 if stripes wins)
 def get_game_data(gamepath):
     def append_frame(csvpath, i):
@@ -116,7 +118,8 @@ def zone(ball):
     else:
         return 2
 
-# easystripe, easysolid, medstripe, medsolid, hardstripe, hardsolid, winner
+# TODO: need to fix (add game)
+# easystripe, easysolid, medstripe, medsolid, hardstripe, hardsolid, winner, game
 def get_data2(start, end):
     df = pd.DataFrame(columns = ['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid','winner'])
     cols = [('stripe','easy'),('solid','easy'),('stripe','med'),('solid','med'),('stripe','hard'),('solid','hard')]
@@ -136,6 +139,8 @@ def get_data2(start, end):
             df.loc(len(df)) = newrow
     return df
 
+# TODO: eight ball???
+# TODO: fix this too
 # numstripes, numsolids, d2 for each stripe, d2 for each solid 
 # each ball ordered by difficulty
 def get_data3(start, end):

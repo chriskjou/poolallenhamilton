@@ -21,7 +21,7 @@ params.filterByCircularity = False
 params.minCircularity = 0.1
 
 # Filter by Convexity
-params.filterByConvexity = True
+params.filterByConvexity = False
 params.minConvexity = 0.01
 
 # Filter by Inertia
@@ -36,7 +36,7 @@ else:
     detector = cv2.SimpleBlobDetector_create(params)
 
 # Read image
-im = cv2.imread("threshold.jpg")
+im = cv2.imread("threshold2.jpg")
 # im = cv2.imread("threshold.jpg" , cv2.IMREAD_GRAYSCALE)
 
 # Detect blobs.

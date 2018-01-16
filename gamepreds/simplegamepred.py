@@ -29,7 +29,7 @@ class Net(nn.Module):
 # Hyper Parameters
 input_size = 2
 hidden_size = 12
-num_classes = 2
+num_classes = 1 # ?
 num_epochs = 10
 batch_size = 1
 learning_rate = 0.001
@@ -37,8 +37,8 @@ learning_rate = 0.001
 net = Net(input_size, hidden_size, num_classes)
 
 # Loss and Optimizer
-criterion = nn.CrossEntropyLoss()  
-optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)  
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
 # change all this
 data = get_data1(0,4) # just get 4 games for now
