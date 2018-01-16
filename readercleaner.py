@@ -37,6 +37,7 @@ def get_meta(gamepath):
     return meta
 
 # TODO: throw out the first frame, the break
+# idea: duplicate later frames! (or just give it the second half of the game?)
 # type, x, y, frame, winner (1 if stripes wins)
 def get_game_data(gamepath):
     def append_frame(csvpath, i):
