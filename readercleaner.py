@@ -184,4 +184,4 @@ def get_data3(start, end):
             df.loc[len(df)] = newrow
     return df
 
-print(get_data(0,4))
+

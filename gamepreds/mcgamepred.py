@@ -1,4 +1,5 @@
 import numpy as np
+from ../readercleaner import get_data2
 
 num_states = 7**6
 trans_matrix = np.zeros((num_states, num_states))
@@ -13,4 +14,10 @@ def state_id(state):
     return idx
 
 # change this
-data = get_data
+data = get_data2(0,4)
+
+
+for index, row in df.iterrows():
+    pass
+
+
