@@ -12,8 +12,8 @@ def closest_pocket(ball):
         d_p = np.sqrt((ball[1]-d[0])**2+(ball[2]-d[1])**2)
         d = d_p if d_p < p else d_p
     return d
-
 # 0 for easy, 1 for med, 2 for hard
+
 def zone(ball):
     d = closest_pocket(ball)
     if d < 20:
