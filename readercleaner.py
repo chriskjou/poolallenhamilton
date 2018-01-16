@@ -119,10 +119,9 @@ def zone(ball):
     else:
         return 2
 
-# TODO: need to fix (add game)
 # easystripe, easysolid, medstripe, medsolid, hardstripe, hardsolid, winner, game
 def get_data2(start, end):
-    df = pd.DataFrame(columns = ['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid','winner'])
+    df = pd.DataFrame(columns = ['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid','winner','game'])
     cols = [('stripe','easy'),('solid','easy'),('stripe','med'),('solid','med'),('stripe','hard'),('solid','hard')]
     for i in range(start, end):
         gamepath = folders[i]
@@ -133,19 +132,20 @@ def get_data2(start, end):
             imgdf = get_image_data(csv)
             imgdf['diff'] = imgdf.apply(zone, axis=1)
             imgdf = imgdf.groupby(['balltype','diff'])
-            newrow = np.zeros(len(cols)+1)
-            newrow[-1] = winner
+            newrow = np.zeros(len(cols)+2)
+            newrow[-2] = winner
+            newrow[-1] = i
             for x in range(len(cols)):
                 newrow[x] = imgdf.loc(cols[x])[0]
             df.loc(len(df)) = newrow
     return df
 
 # TODO: eight ball???
-# TODO: fix this too
-# numstripes, numsolids, d2 for each stripe, d2 for each solid 
+# numstripes, numsolids, d2 for each stripe, d2 for each solid, winner, game
 # each ball ordered by difficulty
 def get_data3(start, end):
-    df = pd.DataFrame(columns=['numstripe','numsolid']+['stripe'+str(i) for i in range(7)]+['solid'+str(i) for i in range(7)])
+    df = pd.DataFrame(columns=['numstripe','numsolid']+['stripe'+str(i) for i in range(7)]+['solid'+str(i) for i in range(7)]+
+        ['winner','game'])
     for i in range(start, end):
         gamepath = folders[i]
         meta = get_meta(gamepath)
@@ -158,8 +158,9 @@ def get_data3(start, end):
             imgdf['diff'] = imgdf.apply(diff, axis=1)
             stripedf = imgdf[imgdf['balltype']=='stripe'].sort_values(by='diff')
             soliddf = imgdf[imgdf['balltype']=='solid'].sort_values(by='diff')
-            newrow = np.zeros(17)
-            newrow[-1] = winner
+            newrow = np.zeros(18)
+            newrow[-2] = winner
+            newrow[-1] = game
             newrow[:2] = [len(stripedf),len(soliddf)]
             newrow[2:(2+len(stripedf))] = stripedf['diff']
             newrow[9:(9+len(soliddf))] = soliddf['diff']
