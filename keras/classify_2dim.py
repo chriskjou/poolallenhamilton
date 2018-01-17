@@ -14,7 +14,7 @@ hidden_dim = 5
 output_dim = 1
 model_dir = '2dim_model.json'
 weights_dir = '2dim_wts.h5'
-test_data = get_data1(200,201)
+test_data = get_data1(20,21)
 X_test = test_data[['numstripe','numsolid']].as_matrix()
 Y_test = test_data[['winner']].as_matrix()
 

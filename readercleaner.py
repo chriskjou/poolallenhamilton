@@ -33,6 +33,8 @@ def get_meta(gamepath):
 def get_game_data(gamepath):
     def append_frame(csvpath, i):
         df = get_image_data(csvpath)
+        if df.empty:
+            continue
         df['frame'] = i
         return df
     nframes = len(glob.glob(gamepath+'/frame*'))//2
@@ -63,16 +65,18 @@ def get_data1(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        for csv in csvs:
+        for csv in csvs[3:]: # drop first 3 frames
             imgdf = get_image_data(csv)
+            if imgdf.empty:
+                continue
             ct = imgdf['balltype'].value_counts()
             newrow = np.zeros(4)
             newrow[0] = ct.stripes if 'stripes' in ct.index else 0
             newrow[1] = ct.solids if 'solids' in ct.index else 0
             newrow[2] = winner
             newrow[3] = i
-            if newrow[0] > 8 or newrow[1] > 8:
-                continue # throw out obvious mistakes
+            if newrow[0] > 7 or newrow[1] > 7:
+                continue # throw out obvious mistakes (and it's 7 this time)
             df.loc[len(df)] = newrow
     return df
 
@@ -132,18 +136,21 @@ def get_data2(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        for csv in csvs:
-            imgdf = get_image_data(csv)
-            imgdf['diff'] = imgdf.apply(zone, axis=1)
-            imgdf = imgdf.groupby(['balltype','diff']).count()
-            newrow = np.zeros(len(cols)+2)
-            newrow[-2] = winner
-            newrow[-1] = i
-            for x in range(len(cols)):
-                newrow[x] = imgdf.loc[cols[x]][0] if cols[x] in imgdf.index else 0
-            if sum(newrow[0:3]) > 7 or sum(newrow[3:6]) > 7:
-                continue # throw out obvious mistakes (and it's 7 this time)
-            df.loc[len(df)] = newrow
+    for csv in csvs[3:]: # drop first 3 frames
+        print(csv)
+        imgdf = get_image_data(csv)
+        if imgdf.empty:
+            continue
+        imgdf['diff'] = imgdf.apply(zone, axis=1)
+        imgdf = imgdf.groupby(['balltype','diff']).count()
+        newrow = np.zeros(len(cols)+2)
+        newrow[-2] = winner
+        newrow[-1] = i
+        for x in range(len(cols)):
+            newrow[x] = imgdf.loc[cols[x]][0] if cols[x] in imgdf.index else 0
+        if sum(newrow[0:3]) > 7 or sum(newrow[3:6]) > 7:
+            continue # throw out obvious mistakes (and it's 7 this time)
+        df.loc[len(df)] = newrow
     return df
 
 # numstripes, numsolids, d2 for each stripe, d2 for each solid, winner, game
@@ -158,6 +165,8 @@ def get_data3(start, end):
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
         for csv in csvs:
             imgdf = get_image_data(csv)
+            if imgdf.empty:
+                continue
             # cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
             # imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
             imgdf['diff'] = imgdf.apply(diff, axis=1)
