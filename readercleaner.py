@@ -28,7 +28,7 @@ def get_meta(gamepath):
         meta = next(reader)
     return meta
 
-# idea: duplicate later frames! (or just give it the second half of the game?)
+# TODO: duplicate later frames! (or just give it the second half of the game?)
 # type, x, y, frame, winner (1 if stripes wins)
 def get_game_data(gamepath):
     def append_frame(csvpath, i):
@@ -37,7 +37,7 @@ def get_game_data(gamepath):
         return df
     nframes = len(glob.glob(gamepath+'/frame*'))//2
     csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-    df = pd.concat([append_frame(csvs[i],i) for i in range(len(csvs))], ignore_index=True) # untested
+    df = pd.concat([append_frame(csvs[i],i) for i in range(len(csvs))], ignore_index=True)
     df.drop([0,1,2]) # drop first 3 frames
     meta = get_meta(gamepath)
     winner = int(meta[2]==meta[3])
@@ -50,7 +50,7 @@ def get_data(start, end):
         df = get_game_data(folders[i])
         df['game'] = i
         return df
-    return pd.concat([append_game(i) for i in range(start, end)], ignore_index=True) # untested
+    return pd.concat([append_game(i) for i in range(start, end)], ignore_index=True)
 
 ################
 
@@ -72,7 +72,7 @@ def get_data1(start, end):
             newrow[2] = winner
             newrow[3] = i
             if newrow[0] > 8 or newrow[1] > 8:
-                continue # TODO: implement this for the other one too
+                continue # throw out obvious mistakes
             df.loc[len(df)] = newrow
     return df
 
@@ -111,7 +111,7 @@ def diff1(ball, cue):
         d = d2 if d2 < d else d2
     # TODO: what about obstacle balls?
 
-# TODO: change these thresholds
+# Just eyeballed these thresholds
 # 0 for easy, 1 for med, 2 for hard
 def zone(ball):
     d = diff(ball)
@@ -141,11 +141,11 @@ def get_data2(start, end):
             newrow[-1] = i
             for x in range(len(cols)):
                 newrow[x] = imgdf.loc[cols[x]][0] if cols[x] in imgdf.index else 0
+            if sum(newrow[0:3]) > 8 or sum(newrow[3:6]) > 8:
+                continue # throw out obvious mistakes
             df.loc[len(df)] = newrow
     return df
 
-# TODO: eight ball???
-# TODO: what if more than 7 stripes/solids?
 # numstripes, numsolids, d2 for each stripe, d2 for each solid, winner, game
 # each ball ordered by difficulty
 def get_data3(start, end):
@@ -163,8 +163,8 @@ def get_data3(start, end):
             imgdf['diff'] = imgdf.apply(diff, axis=1)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='diff')
             soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='diff')
-            stripedf = stripedf.iloc[0:7]
-            soliddf = soliddf.iloc[0:7]
+            if len(stripedf) > 7 or len(soliddf) > 7:
+                continue # throw out obvious mistakes (and it's 7 this time)
             newrow = np.zeros(18)
             newrow[-2] = winner
             newrow[-1] = i

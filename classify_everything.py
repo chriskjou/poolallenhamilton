@@ -126,50 +126,7 @@ for folder in folders:
 
       names.append(labels[index])
       interesting_count += 1
-    """
-      maxnum = predictions[0][0]
-      index = 0
-      for i in range(1, 17):
-          if maxnum < predictions[0][i]:
-            maxnum = predictions[0][i]
-            index = i
-
-      if index == 0:
-        names.append('blacksolid')
-      elif index == 1:
-        names.append('bluesolid')
-      elif index == 2:
-        names.append('bluestripe')
-      elif index == 3:
-        names.append('greensolid')
-      elif index == 4:
-        names.append('greenstripe')
-      elif index == 5:
-        names.append('neither')
-      elif index == 6:
-        names.append('orangesolid')
-      elif index == 7:
-        names.append('orangestripe')
-      elif index == 8:
-        names.append('pinksolid')
-      elif index == 9:
-        names.append('pinkstripe')
-      elif index == 10:
-        names.append('purplesolid')
-      elif index == 11:
-        names.append('purplestripe')
-      elif index == 12:
-        names.append('redsolid')
-      elif index == 13:
-        names.append('redstripe')
-      elif index == 14:
-        names.append('white')
-      elif index == 15:
-        names.append('yellowsolid')
-      else:
-        names.append('yellowstripe')
-        """
-
+    
     # plt.imshow(heatmap)
     # for i in range(len(balls)):
       # plt.plot(int(balls[i][0]), int(balls[i][1]), 'ro')
