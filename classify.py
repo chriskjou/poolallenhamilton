@@ -12,6 +12,7 @@ import classify3
 import utils2
 import time
 from thresholder import Thresholder, lovelyplot, personalspace
+from matplotlib.patches import Rectangle
 
 ### TENSORFLOW SETUP
 # TODO: disable tensorflow compilation warnings
@@ -41,7 +42,7 @@ def truncate(f, n):
   return '.'.join([i, (d+'0'*n)[:n]])
 
 image = cv2.imread(args["image"])
-new_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+new_image = image #cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 (winW, winH) = (smallwindow_size, smallwindow_size)
 
 # I had difficulty getting ffmpeg to crop, so I'll do it here.
@@ -79,10 +80,12 @@ heatmap = heatmap[:,:,1]
 
 balls = personalspace(heatmap,0.5)
 
-plt.imshow(heatmap)
-for each in balls:
-  plt.plot(int(each[0]), int(each[1]), 'ro')
-plt.show()
+# plt.imshow(heatmap)
+# for each in balls:
+#   plt.plot(int(each[0]), int(each[1]), 'ro')
+#   # rectangle = plt.Rectangle((30, 30), 2, 2, fill=False, edgecolor="red")
+#   # plt.gca().add_patch(rectangle)
+# plt.show()
 
 # adding ball classifier to interesting points
 interesting_count = 0
@@ -107,7 +110,8 @@ for ball in balls:
 
   # labels = [black cue neither solids stripes]
 
-  labels = ['eight_ball', 'cue', 'neither', 'solids', 'stripes'] # consist with predictions
+  labels = ['eight', 'cue', 'n/a', 'sol', 'str'] # consist with predictions
+  #labels = ['neither', 'solids', 'stripes']
   maxnum = predictions[0][0]
   index = 0
   for i in range(1, len(labels)):
@@ -126,8 +130,15 @@ for ball in balls:
 # TODO: from total list of balls given by thresholder, annotate raw images
 
 plt.imshow(heatmap)
+count = 19
 for i in range(len(balls)):
-  plt.plot(int(balls[i][0]), int(balls[i][1]), 'ro')
-  plt.text(int(balls[i][0]), int(balls[i][1]), names[i])
-# cv2.imwrite("labels%d.jpg" % 0, image)
-plt.show()
+  if names[i] != 'n/a':
+    xcoord = balls[i][0]
+    ycoord = balls[i][1]
+    #plt.plot(max(xcoord - 1, 0), max(ycoord - 2, 0), 'ro')
+    rectangle = plt.Rectangle((max(xcoord - 1, 0), max(ycoord - 2, 0)), 3, 3, fill=False, edgecolor="red")
+    plt.gca().add_patch(rectangle)
+    plt.text(max(int(balls[i][0] - 1), 0), max(int(balls[i][1]), 0), names[i])
+#plt.savefig("real-time-test/labels%d.jpg" % count)
+#cv2.imwrite("real-time-test/labels%d.jpg" % count, image)
+#plt.show()

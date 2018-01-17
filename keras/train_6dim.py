@@ -7,19 +7,18 @@ from keras import optimizers
 import matplotlib.pyplot as plt
 import sys
 sys.path.insert(0, '../')
-from readercleaner import get_data1
+from readercleaner import get_data2
 
 # rather, for pool
 input_dim = 6
-hidden_dim = 12
 output_dim = 1
-model_dir = '6dim_Logistic_model.json'
-weights_dir = '6dim_Logistic_wts.h5'
-train_data = get_data1(0,200)
-X_train = train_data[['numstripe','numsolid']].as_matrix()
+model_dir = 'trunc_6dim_model.json'
+weights_dir = 'trunc_6dim_wts.h5'
+train_data = get_data2(0,290)
+X_train = train_data[['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid']].as_matrix()
 Y_train = train_data[['winner']].as_matrix()
-test_data = get_data1(200,250)
-X_test = test_data[['numstripe','numsolid']].as_matrix()
+test_data = get_data2(290,340)
+X_test = test_data[['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid']].as_matrix()
 Y_test = test_data[['winner']].as_matrix()
 
 # is it ok if i don't convert class vectors to binary class matrices?
@@ -32,7 +31,8 @@ print("Y size", Y_train.shape)
 # build the model
 
 model = Sequential()
-model.add(Dense(hidden_dim, input_dim=input_dim, activation='sigmoid')) # changed from softmax
+model.add(Dense(12, input_dim=input_dim, activation='sigmoid')) # changed from softmax
+model.add(Dense(6, activation='sigmoid'))
 model.add(Dense(output_dim, activation='sigmoid'))
 model.summary()
 batch_size = 64
@@ -61,22 +61,5 @@ model.save_weights(weights_dir)
 model = model_from_json(open(model_dir).read())# if json
 # model = model_from_yaml(open('mnist_Logistic_model.yaml').read())# if yaml
 model.load_weights(weights_dir)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -63,16 +63,18 @@ def get_data1(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        for csv in csvs:
+        for csv in csvs[3:]: # drop first 3 frames
             imgdf = get_image_data(csv)
+            if imgdf.empty:
+                continue
             ct = imgdf['balltype'].value_counts()
             newrow = np.zeros(4)
             newrow[0] = ct.stripes if 'stripes' in ct.index else 0
             newrow[1] = ct.solids if 'solids' in ct.index else 0
             newrow[2] = winner
             newrow[3] = i
-            if newrow[0] > 8 or newrow[1] > 8:
-                continue # throw out obvious mistakes
+            if newrow[0] > 7 or newrow[1] > 7:
+                continue # throw out obvious mistakes (and it's 7 this time)
             df.loc[len(df)] = newrow
     return df
 
@@ -90,6 +92,7 @@ def angle_between(v1, v2):
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 # d2
+# lower is better
 def diff(ball):
     d = 2000 # artificially high number
     ball = ball[['x','y']].values
@@ -99,16 +102,21 @@ def diff(ball):
     return d
 
 # analytical difficulty (other formulae also exist)
+# higher is better
 def diff1(ball, cue):
-    d = 2000 # artificially high number
+    d = 0 # artificially low number
     ball = ball[['x','y']].values
     cue = cue.values
     for pocket in pockets:
-        theta = angle_between(cue)
+        theta = angle_between(cue - ball, pocket - ball)
+        if theta > 1.58:
+            continue
         d1 = np.linalg.norm(ball - cue)
         d2 = np.linalg.norm(pocket - ball)
         diff = np.cos(theta) / d1 / d2
-        d = d2 if d2 < d else d2
+        d = diff if diff > d else d
+    return d
+    # TODO: these values are tiny! (e-6)
     # TODO: what about obstacle balls?
 
 # Just eyeballed these thresholds
@@ -132,8 +140,12 @@ def get_data2(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        for csv in csvs:
+        if len(csvs) < 14:
+            continue
+        for csv in csvs[3:-10]: # drop first 3 frames
             imgdf = get_image_data(csv)
+            if imgdf.empty:
+                continue
             imgdf['diff'] = imgdf.apply(zone, axis=1)
             imgdf = imgdf.groupby(['balltype','diff']).count()
             newrow = np.zeros(len(cols)+2)
@@ -156,11 +168,18 @@ def get_data3(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        for csv in csvs:
+        if len(csvs) < 14:
+            continue
+        for csv in csvs[-10:]: # drop first 3 frames
             imgdf = get_image_data(csv)
-            # cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
-            # imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
-            imgdf['diff'] = imgdf.apply(diff, axis=1)
+            if imgdf.empty:
+                continue
+            if 'cue' not in imgdf['balltype'].values:
+                continue
+            imgdf = imgdf[imgdf['balltype']!='cue']
+            cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
+            imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
+            # imgdf['diff'] = imgdf.apply(diff, axis=1)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='diff')
             soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='diff')
             if len(stripedf) > 7 or len(soliddf) > 7:
@@ -173,5 +192,39 @@ def get_data3(start, end):
             newrow[9:(9+len(soliddf))] = soliddf['diff']
             df.loc[len(df)] = newrow
     return df
+
+#####
+
+# TODO: still wanna throw out frames so liberally?
+def get_dataduncan(start, end):
+    X = np.zeros((1,16,2))
+    Y = np.zeros(1)
+    for i in range(start, end):
+        gamepath = folders[i]
+        meta = get_meta(gamepath)
+        winner = int(meta[2]==meta[3])
+        nframes = len(glob.glob(gamepath+'/frame*'))//2
+        csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
+        if len(csvs) < 14:
+            continue
+        lastballs = (7,7)
+        for csv in csvs[-10:]: # drop first 3 frames
+            newrow = np.zeros((16,2)) # cartesian... zeros has another interpretation
+            imgdf = get_image_data(csv)
+            stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='x') # arbitrary
+            soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='x')
+            if len(stripedf) > 7 or len(soliddf) > 7:
+                continue # throw out obvious mistakes (and it's 7 this time)
+            newrow[:len(soliddf),:] = soliddf[['x','y']]
+            newrow[7:(7+len(stripedf)),:] = stripedf[['x','y']]
+            if 'cue' not in imgdf['balltype'].values or 'eight_ball' not in imgdf['balltype'].values:
+                continue
+            newrow[14,:] = imgdf[imgdf['balltype']=='cue'][['x','y']]
+            newrow[15,:] = imgdf[imgdf['balltype']=='eight_ball'][['x','y']]
+            X = np.concatenate((X,newrow[np.newaxis]))
+            Y = np.append(Y,lastballs[1]-len(stripedf)-lastballs[0]+len(soliddf))
+    return (X,Y)
+
+
 
 
