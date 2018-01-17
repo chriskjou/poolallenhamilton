@@ -12,12 +12,12 @@ from readercleaner import get_data2
 # rather, for pool
 input_dim = 6
 output_dim = 1
-model_dir = '6dim_model.json'
-weights_dir = '6dim_wts.h5'
-train_data = get_data2(0,200)
+model_dir = 'trunc_6dim_model.json'
+weights_dir = 'trunc_6dim_wts.h5'
+train_data = get_data2(0,290)
 X_train = train_data[['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid']].as_matrix()
 Y_train = train_data[['winner']].as_matrix()
-test_data = get_data2(200,250)
+test_data = get_data2(290,340)
 X_test = test_data[['easystripe','easysolid','medstripe','medsolid','hardstripe','hardsolid']].as_matrix()
 Y_test = test_data[['winner']].as_matrix()
 
