@@ -116,6 +116,7 @@ def diff1(ball, cue):
         diff = np.cos(theta) / d1 / d2
         d = diff if diff > d else d
     return d
+    # TODO: these values are tiny! (e-6)
     # TODO: what about obstacle balls?
 
 # Just eyeballed these thresholds
@@ -191,4 +192,39 @@ def get_data3(start, end):
             newrow[9:(9+len(soliddf))] = soliddf['diff']
             df.loc[len(df)] = newrow
     return df
+
+#####
+
+# TODO: still wanna throw out frames so liberally?
+def get_dataduncan(start, end):
+    X = np.zeros((1,16,2))
+    Y = np.zeros(1)
+    for i in range(start, end):
+        gamepath = folders[i]
+        meta = get_meta(gamepath)
+        winner = int(meta[2]==meta[3])
+        nframes = len(glob.glob(gamepath+'/frame*'))//2
+        csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
+        if len(csvs) < 14:
+            continue
+        lastballs = (7,7)
+        for csv in csvs[-10:]: # drop first 3 frames
+            newrow = np.zeros((16,2)) # cartesian... zeros has another interpretation
+            imgdf = get_image_data(csv)
+            stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='x') # arbitrary
+            soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='x')
+            if len(stripedf) > 7 or len(soliddf) > 7:
+                continue # throw out obvious mistakes (and it's 7 this time)
+            newrow[:len(soliddf),:] = soliddf[['x','y']]
+            newrow[7:(7+len(stripedf)),:] = stripedf[['x','y']]
+            if 'cue' not in imgdf['balltype'].values or 'eight_ball' not in imgdf['balltype'].values:
+                continue
+            newrow[14,:] = imgdf[imgdf['balltype']=='cue'][['x','y']]
+            newrow[15,:] = imgdf[imgdf['balltype']=='eight_ball'][['x','y']]
+            X = np.concatenate((X,newrow[np.newaxis]))
+            Y = np.append(Y,lastballs[1]-len(stripedf)-lastballs[0]+len(soliddf))
+    return (X,Y)
+
+
+
 
