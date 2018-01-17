@@ -183,5 +183,3 @@ def get_data3(start, end):
             newrow[9:(9+len(soliddf))] = soliddf['diff']
             df.loc[len(df)] = newrow
     return df
-
-print(get_data(0,4))

@@ -95,6 +95,7 @@ squisher = np.array([[.51,.51,.51,.51,.51],[.51,.1,.1,.1,.51],[.51,.1,.01,.1,.51
 assert(squisher.shape[0] == 2 * r + 1)
 
 def personalspace(heatmap,thresh):
+    count = 0
     balls = []
     bustmap = np.zeros((heatmap.shape[0]+2*r,heatmap.shape[1]+2*r))
     bustmap[r:-r,r:-r] = heatmap
@@ -110,7 +111,9 @@ def personalspace(heatmap,thresh):
         # print(bustmap)
         # print(maxcoord)
         # print(maxprob)
-        # plt.imshow(bustmap)
-        # plt.show()
+        plt.imshow(bustmap)
+        plt.savefig("real-time-test/process%d.jpg" % count)
+        plt.show()
+        count+=1
     balls = list(map(lambda ball: (ball[1]-r,ball[0]-r), balls)) # flipped?
     return balls
