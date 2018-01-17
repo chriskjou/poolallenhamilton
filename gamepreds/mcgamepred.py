@@ -53,3 +53,53 @@ for x in range(1,8):
 # expected # times visit nonabsorbing state j given nonabsorbing start
 # B = RN -> prob absorption in state i given nonabsorbing start
 # or take the trans matrix to infty power, instead of using B
+
+
+# ADAM AND EVE
+
+trans_matrix = np.zeros((1000,1000)) # ludicrously high
+nstates = 2
+coords = {}
+# hm, is there a python struct that auto assigns a new unique id to each new element
+
+# populate transition matrix
+for x in range(200):
+    # TODO: if we have another fn that gives strictly 1 image per shot, use that instead of get_data1
+    data = get_data1(x,x+1)
+    transes = data[['numstripe','numsolid']].apply(tuple, axis=1)
+    for i in range(len(transes)-1):
+        if transes[i] in coords:
+            s0 = coords[transes[i]]
+        else:
+            coords[transes[i]] = nstates
+            s0 = nstates
+            nstates += 1
+        if transes[i+1] in coords:
+            s1 = coords[transes[i+1]]
+        else:
+            coords[transes[i+1]] = nstates
+            s1 = nstates
+            nstates += 1
+        trans_matrix[s0,s1] += 1
+
+# normalize rows
+trans_matrix = trans_matrix[nstates, nstates]
+row_sums = trans_matrix.sum(axis=1)
+trans_matrix = trans_matrix / row_sums[:, np.newaxis]
+
+# make right states to absorb
+# state 0 is solid win, 1 is stripe win
+trans_matrix[0, 0] = 1
+trans_matrix[1, 1] = 1 
+for x in range(1,8):
+    # for stripes
+    sx = state_id([0,x])
+    trans_matrix[sx,:] = np.zeros(num_states+2)
+    trans_matrix[sx,-2] = 1
+    # for solids
+    sx = state_id([x,0])
+    trans_matrix[sx,:] = np.zeros(num_states+2)
+    trans_matrix[sx,-1] = 1
+
+# there's only 2 absorbing states
+
