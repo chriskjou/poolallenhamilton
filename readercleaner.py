@@ -162,7 +162,9 @@ def get_data3(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        for csv in csvs:
+        if len(csvs) < 14:
+            continue
+        for csv in csvs[-10:]: # drop first 3 frames
             imgdf = get_image_data(csv)
             if imgdf.empty:
                 continue
