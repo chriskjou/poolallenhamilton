@@ -96,7 +96,7 @@ for ball in balls:
   small_image = new_image[max(ycoord, 0): min(ycoord + smallwindow_size, 790), max(xcoord, 0): min(xcoord + smallwindow_size, 1580)]
   predictions = classify2.isball(small_image)
   small_image = cv2.cvtColor(small_image, cv2.COLOR_BGR2RGB)
-  cv2.imwrite("interestingnew%d.jpg" % interesting_count, small_image)
+  # cv2.imwrite("interestingnew%d.jpg" % interesting_count, small_image)
   print("WHICH BALL:", ball)
   print(predictions)
 
@@ -126,9 +126,7 @@ for ball in balls:
 # f.write(str(where_balls))
 # f.close()
 
-# todo: change coordinates in small 16 square to big square
-# todo: from total list of balls given by thresholder, annotate raw images
-
+# TODO: change coordinates in small 16 square to big square
 # TODO: from total list of balls given by thresholder, annotate raw images
 
 plt.imshow(heatmap)

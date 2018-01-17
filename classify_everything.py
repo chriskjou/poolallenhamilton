@@ -99,8 +99,7 @@ for folder in folders:
     for ball in balls:
       xcoord = int(ball[0] * smallwindow_step)
       ycoord = int(ball[1] * smallwindow_step)
-      small_image = new_image[max(ycoord, 0): min(ycoord + smallwindow_size, 780), max(xcoord, 0): min(xcoord + smallwindow_size, 1580)]
-      # elby: i have a question. where do 780 and 1580 come from? (shouldn't it be 790 and 1580?). delete comment once you answer
+      small_image = new_image[max(ycoord, 0): min(ycoord + smallwindow_size, 790), max(xcoord, 0): min(xcoord + smallwindow_size, 1580)]
       predictions = classify2.isball(small_image)
       small_image = cv2.cvtColor(small_image, cv2.COLOR_BGR2RGB)
       #cv2.imwrite("interestingnew%d.jpg" % interesting_count, small_image)
@@ -127,50 +126,7 @@ for folder in folders:
 
       names.append(labels[index])
       interesting_count += 1
-    """
-      maxnum = predictions[0][0]
-      index = 0
-      for i in range(1, 17):
-          if maxnum < predictions[0][i]:
-            maxnum = predictions[0][i]
-            index = i
-
-      if index == 0:
-        names.append('blacksolid')
-      elif index == 1:
-        names.append('bluesolid')
-      elif index == 2:
-        names.append('bluestripe')
-      elif index == 3:
-        names.append('greensolid')
-      elif index == 4:
-        names.append('greenstripe')
-      elif index == 5:
-        names.append('neither')
-      elif index == 6:
-        names.append('orangesolid')
-      elif index == 7:
-        names.append('orangestripe')
-      elif index == 8:
-        names.append('pinksolid')
-      elif index == 9:
-        names.append('pinkstripe')
-      elif index == 10:
-        names.append('purplesolid')
-      elif index == 11:
-        names.append('purplestripe')
-      elif index == 12:
-        names.append('redsolid')
-      elif index == 13:
-        names.append('redstripe')
-      elif index == 14:
-        names.append('white')
-      elif index == 15:
-        names.append('yellowsolid')
-      else:
-        names.append('yellowstripe')
-        """
-
+    
     # plt.imshow(heatmap)
     # for i in range(len(balls)):
       # plt.plot(int(balls[i][0]), int(balls[i][1]), 'ro')
