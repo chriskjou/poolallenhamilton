@@ -1,11 +1,18 @@
 import numpy as np
-from ../readercleaner import get_data2
+import sys
+sys.path.insert(0, '../')
+from readercleaner import get_data1
 
-num_states = 7**6
-trans_matrix = np.zeros((num_states, num_states))
+# TODO: Just realized a big mistake: I don't know when the eight ball gets sunk!
+# Right now I'm just assuming you win when you pot all your non-eight balls!
+# If lazy, I could just get the winner from the metadata
+
+num_states = 2**8
+trans_matrix = np.zeros((num_states+2, num_states+2))
 
 # markov chain: store transition probabilities
-
+# start with 2-dimensional
+# TODO: for 6-dim, need more efficient storing mech
 def state_id(state):
     idx = state[0]
     for num in state[1:]:
@@ -13,11 +20,36 @@ def state_id(state):
         idx += num
     return idx
 
-# change this
-data = get_data2(0,4)
+# populate transition matrix
+for x in range(200):
+    # TODO: if we have another fn that gives strictly 1 image per shot, use that instead of get_data1
+    data = get_data1(x,x+1)
+    data['state_id'] = data[['numstripe','numsolid']].apply(state_id)
+    for i in range(len(data)-1):
+        trans_matrix[data.iloc[i].state_id, data.iloc[i+1].state_id] += 1
 
+# normalize rows
+row_sums = trans_matrix.sum(axis=1)
+trans_matrix = trans_matrix / row_sums[:, np.newaxis]
 
-for index, row in df.iterrows():
-    pass
+# set absorbing states to 1
+# state -2 is stripe win, -1 is solid win
+trans_matrix[-2,-2] = 1
+trans_matrix[-1,-1] = 1
+for x in range(1,8):
+    # for stripes
+    sx = state_id([0,x])
+    trans_matrix[sx,:] = np.zeros(num_states+2)
+    trans_matrix[sx,-2] = 1
+    # for solids
+    sx = state_id([x,0])
+    trans_matrix[sx,:] = np.zeros(num_states+2)
+    trans_matrix[sx,-1] = 1
+
 
 # a way to calculate probabilities of reaching absorbing states
+# Q is matrix part of all absorbing states. N=(I-Q)^-1. 
+# expected # steps before absorption, given a nonabsorbing start
+# expected # times visit nonabsorbing state j given nonabsorbing start
+# B = RN -> prob absorption in state i given nonabsorbing start
+# or take the trans matrix to infty power, instead of using B

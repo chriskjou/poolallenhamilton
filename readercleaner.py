@@ -141,8 +141,8 @@ def get_data2(start, end):
             newrow[-1] = i
             for x in range(len(cols)):
                 newrow[x] = imgdf.loc[cols[x]][0] if cols[x] in imgdf.index else 0
-            if sum(newrow[0:3]) > 8 or sum(newrow[3:6]) > 8:
-                continue # throw out obvious mistakes
+            if sum(newrow[0:3]) > 7 or sum(newrow[3:6]) > 7:
+                continue # throw out obvious mistakes (and it's 7 this time)
             df.loc[len(df)] = newrow
     return df
 

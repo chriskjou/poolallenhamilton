@@ -4,7 +4,10 @@ import torch.nn as nn
 import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 from torch.autograd import Variable
-from ../readercleaner import get_data1
+import sys
+sys.path.insert(0, '../')
+from readercleaner import get_data1
+
 # x is the long dimension
 
 # To change to 6 features, simply change input_size and get_data() call
