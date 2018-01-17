@@ -112,8 +112,8 @@ def personalspace(heatmap,thresh):
         # print(maxcoord)
         # print(maxprob)
         plt.imshow(bustmap)
-        plt.savefig("real-time-test/process%d.jpg" % count)
+
         plt.show()
-        count+=1
+
     balls = list(map(lambda ball: (ball[1]-r,ball[0]-r), balls)) # flipped?
     return balls
