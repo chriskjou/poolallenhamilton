@@ -12,8 +12,8 @@ from readercleaner import get_data1
 input_dim = 2
 hidden_dim = 5
 output_dim = 1
-model_dir = '2dim_Logistic_model.json'
-weights_dir = '2dim_Logistic_wts.h5'
+model_dir = '2dim_model.json'
+weights_dir = '2dim_wts.h5'
 test_data = get_data1(200,201)
 X_test = test_data[['numstripe','numsolid']].as_matrix()
 Y_test = test_data[['winner']].as_matrix()
@@ -21,8 +21,8 @@ Y_test = test_data[['winner']].as_matrix()
 # Y_train = np_utils.to_categorical(y_train, nb_classes)
 # Y_test = np_utils.to_categorical(y_test, nb_classes)
 
-print("X size", X_train.shape)
-print("Y size", Y_train.shape)
+print("X size", X_test.shape)
+print("Y size", Y_test.shape)
 
 
 
@@ -30,10 +30,5 @@ model = model_from_json(open(model_dir).read())# if json
 # model = model_from_yaml(open('mnist_Logistic_model.yaml').read())# if yaml
 model.load_weights(weights_dir)
 
-
-
-
-# TODO: reshape whatevs
+print("winner is", Y_test[0])
 print("result is",model.predict(X_test))
-plt.imshow(test.reshape(28,28))
-plt.show()

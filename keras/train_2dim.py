@@ -13,8 +13,8 @@ from readercleaner import get_data1
 input_dim = 2
 hidden_dim = 5
 output_dim = 1
-model_dir = '2dim_Logistic_model.json'
-weights_dir = '2dim_Logistic_wts.h5'
+model_dir = '2dim_model.json'
+weights_dir = '2dim_wts.h5'
 train_data = get_data1(0,200)
 X_train = train_data[['numstripe','numsolid']].as_matrix()
 Y_train = train_data[['winner']].as_matrix()
