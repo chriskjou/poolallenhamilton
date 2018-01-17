@@ -33,15 +33,17 @@ print("Y size", Y_train.shape)
 
 model = Sequential()
 model.add(Dense(14, input_dim=input_dim, activation='sigmoid')) # changed from softmax
+model.add(Dense(14, activation='sigmoid'))
+model.add(Dense(14, activation='sigmoid'))
 model.add(Dense(7, activation='sigmoid'))
 model.add(Dense(output_dim, activation='sigmoid'))
 model.summary()
-batch_size = 64
-nb_epoch = 20
+batch_size = 32
+nb_epoch = 60
 
 # compile the model
 
-sgd = optimizers.SGD(lr=0.01) # added a higher learning rate
+sgd = optimizers.SGD(lr=0.05) # added a higher learning rate
 model.compile(optimizer=sgd, loss='mean_absolute_error', metrics=['accuracy']) # changed optim, error
 history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)

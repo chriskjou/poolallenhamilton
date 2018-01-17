@@ -92,6 +92,7 @@ def angle_between(v1, v2):
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 # d2
+# lower is better
 def diff(ball):
     d = 2000 # artificially high number
     ball = ball[['x','y']].values
@@ -101,16 +102,20 @@ def diff(ball):
     return d
 
 # analytical difficulty (other formulae also exist)
+# higher is better
 def diff1(ball, cue):
-    d = 2000 # artificially high number
+    d = 0 # artificially low number
     ball = ball[['x','y']].values
     cue = cue.values
     for pocket in pockets:
-        theta = angle_between(cue)
+        theta = angle_between(cue - ball, pocket - ball)
+        if theta > 1.58:
+            continue
         d1 = np.linalg.norm(ball - cue)
         d2 = np.linalg.norm(pocket - ball)
         diff = np.cos(theta) / d1 / d2
-        d = d2 if d2 < d else d2
+        d = diff if diff > d else d
+    return d
     # TODO: what about obstacle balls?
 
 # Just eyeballed these thresholds
@@ -168,9 +173,12 @@ def get_data3(start, end):
             imgdf = get_image_data(csv)
             if imgdf.empty:
                 continue
-            # cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
-            # imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
-            imgdf['diff'] = imgdf.apply(diff, axis=1)
+            if 'cue' not in imgdf['balltype'].values:
+                continue
+            imgdf = imgdf[imgdf['balltype']!='cue']
+            cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
+            imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
+            # imgdf['diff'] = imgdf.apply(diff, axis=1)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='diff')
             soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='diff')
             if len(stripedf) > 7 or len(soliddf) > 7:
