@@ -89,17 +89,22 @@ trans_matrix = trans_matrix / row_sums[:, np.newaxis]
 
 # make right states to absorb
 # state 0 is solid win, 1 is stripe win
-trans_matrix[0, 0] = 1
-trans_matrix[1, 1] = 1 
+trans_matrix[0,0] = 1
+trans_matrix[1,1] = 1 
 for x in range(1,8):
-    # for stripes
-    sx = state_id([0,x])
-    trans_matrix[sx,:] = np.zeros(num_states+2)
-    trans_matrix[sx,-2] = 1
-    # for solids
-    sx = state_id([x,0])
-    trans_matrix[sx,:] = np.zeros(num_states+2)
-    trans_matrix[sx,-1] = 1
+    # for stripes win
+    if (0,x) in coords.keys():
+        sx = coords[(0,x)]
+        trans_matrix[sx,:] = 0
+        trans_matrix[sx,1] = 1
+    # for solids win
+    if (x,0) in coords.keys():
+        sx = coords[(x,0)]
+        trans_matrix[sx,:] = 0
+        trans_matrix[sx,0] = 1
 
-# there's only 2 absorbing states
+# there's only 2 absorbing states- don't need to rearrange matrix rows
+# and i don't need
+
+# TODO: confirm that the matrix looks sane
 
