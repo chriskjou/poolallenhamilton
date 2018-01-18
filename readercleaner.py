@@ -49,6 +49,11 @@ def get_data(start, end):
     def append_game(i):
         df = get_game_data(folders[i])
         df['game'] = i
+        if 'cue' not in df['balltype'].values: # delete all this nonsense later
+            return None
+        cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
+        df = df[df['balltype']!='cue']
+        df['diff'] = df.apply(lambda x: diff1(x,cue), axis=1)
         return df
     return pd.concat([append_game(i) for i in range(start, end)], ignore_index=True)
 
@@ -116,7 +121,9 @@ def diff1(ball, cue):
         diff = np.cos(theta) / d1 / d2
         d = diff if diff > d else d
     return d
-    # TODO: these values are tiny! (e-6)
+    # TODO: these values are tiny! (e-6): maybe I should multiply d by a large constant before returning?
+    # or I could normalize the values afterward
+
     # TODO: what about obstacle balls?
 
 # Just eyeballed these thresholds
