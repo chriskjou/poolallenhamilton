@@ -54,6 +54,27 @@ def get_game_data(gamepath):
     df['winner'] = winner
     return df
 
+def get_polar_data(gamepath):
+    def append_frame(csvpath, i):
+        df = get_image_data(csvpath)
+        df['frame'] = i
+        if 'cue' not in df['balltype'].values: # delete all this nonsense later
+            return None
+        cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
+        df = df[df['balltype']!='cue']
+        if not len(df):
+            return None
+        df = df.merge(df.apply(lambda s: diffseries(s,cue),axis=1),left_index=True,right_index=True)
+        return df
+    nframes = len(glob.glob(gamepath+'/frame*'))//2
+    csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
+    df = pd.concat([append_frame(csvs[i],i) for i in range(len(csvs))], ignore_index=True)
+    df.drop([0,1,2]) # drop first 3 frames
+    meta = get_meta(gamepath)
+    winner = int(meta[2]==meta[3])
+    df['winner'] = winner
+    return df
+
 # type, x, y, frame, winner, game, (cuex, cuey, diff nonsense)
 def get_data(start, end):
     def append_game(i):
@@ -112,7 +133,7 @@ def diff(ball):
     return d
 
 # analytical difficulty (other formulae also exist)
-# higher is bet ter
+# higher is better
 def diff1(ball, cue):
     d = 0 # artificially low number
     ball = ball[['x','y']].values
@@ -126,12 +147,33 @@ def diff1(ball, cue):
         d1 = np.linalg.norm(ball - cue)
         d2 = np.linalg.norm(pocket - ball)
         diff = np.cos(theta) / d1 / d2
-        d = diff if diff > d else d
+        if diff > d:
+            d = diff
+            data = [theta,d1,d2]
     return d * 10 ** 6
     # These values are tiny! hence I multiply d by a large constant before returning?
     # or I could normalize the values afterward
 
     # TODO: what about obstacle balls?
+
+# same exact thing
+def diffseries(ball, cue):
+    d = 0 # artificially low number
+    ball = ball[['x','y']].values
+    if ball.tolist() in pockets:
+        ball -= 1 # avoid div by 0 error
+    cue = cue.values
+    for pocket in pockets:
+        theta = angle_between(cue - ball, pocket - ball)
+        if theta > 1.58:
+            continue
+        d1 = np.linalg.norm(ball - cue)
+        d2 = np.linalg.norm(pocket - ball)
+        diff = np.cos(theta) / d1 / d2
+        if diff > d:
+            d = diff
+            data = [theta,d1,d2]
+    return pd.Series({'theta':theta, 'd1':d1,'d2':d2})
 
 # Just eyeballed these thresholds
 # 0 for easy, 1 for med, 2 for hard
