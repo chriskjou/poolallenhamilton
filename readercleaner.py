@@ -28,6 +28,7 @@ def get_meta(gamepath):
         meta = next(reader)
     return meta
 
+# added a lot of nonsense into this one
 # TODO: duplicate later frames! (or just give it the second half of the game?)
 # type, x, y, frame, winner (1 if stripes wins)
 def get_game_data(gamepath):
@@ -38,6 +39,8 @@ def get_game_data(gamepath):
             return None
         cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
         df = df[df['balltype']!='cue']
+        if len(df) > 0:
+            return None
         df['cuex'] = cue.x
         df['cuey'] = cue.y
         df['diff'] = df.apply(lambda x: diff1(x,cue), axis=1)
