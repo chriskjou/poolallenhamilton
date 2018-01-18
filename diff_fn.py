@@ -21,7 +21,7 @@ def diff1(ball, cue):
             continue # skip if not cuttable angle
         d1 = np.linalg.norm(ball - cue) / 100 # `\_(">)_/`
         d2 = np.linalg.norm(pocket - ball) / 100
-        diff = np.cos(theta)**(4.1-2.7*theta) / d1**0.33 / d2*0.38
+        diff = np.cos(theta)**(4.1-2.7*theta) / d1**0.33 / d2**0.38
         if diff > d:
             d = diff
     return d
@@ -37,8 +37,11 @@ for x in range(1,1579):
         heatmap[x,y] = diff1(ball,cue)
 # it's really slow
 
+# TODO
+# why is it slow?
+# change the diff fn (use e^-x instead?)
 
-plt.imshow(heatmap,interpolation='none')
+plt.imshow(heatmap.transpose(),interpolation='none')
 plt.plot(cue[0],cue[1],marker='o',markersize=12,color='white')
 plt.colorbar()
 plt.title('Difficulty (cue at 1200,300)')
