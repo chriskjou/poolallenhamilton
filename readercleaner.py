@@ -34,6 +34,13 @@ def get_game_data(gamepath):
     def append_frame(csvpath, i):
         df = get_image_data(csvpath)
         df['frame'] = i
+        if 'cue' not in df['balltype'].values: # delete all this nonsense later
+            return None
+        cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
+        df = df[df['balltype']!='cue']
+        df['cuex'] = cue.x
+        df['cuey'] = cue.y
+        df['diff'] = df.apply(lambda x: diff1(x,cue), axis=1)
         return df
     nframes = len(glob.glob(gamepath+'/frame*'))//2
     csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
@@ -44,16 +51,11 @@ def get_game_data(gamepath):
     df['winner'] = winner
     return df
 
-# type, x, y, frame, winner, game
+# type, x, y, frame, winner, game, (cuex, cuey, diff nonsense)
 def get_data(start, end):
     def append_game(i):
         df = get_game_data(folders[i])
         df['game'] = i
-        if 'cue' not in df['balltype'].values: # delete all this nonsense later
-            return None
-        cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
-        df = df[df['balltype']!='cue']
-        df['diff'] = df.apply(lambda x: diff1(x,cue), axis=1)
         return df
     return pd.concat([append_game(i) for i in range(start, end)], ignore_index=True)
 
