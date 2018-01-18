@@ -9,16 +9,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 sys.path.insert(0, '../')
-from readercleaner import get_dataduncan
+from readercleaner import get_dataduncanp
 
 # rather, for pool
 output_dim = 3
-model_dir = 'duncan_model.json'
-weights_dir = 'duncan_wts.h5'
-train_data = get_dataduncan(0,290)
+model_dir = 'duncanp_model.json'
+weights_dir = 'duncanp_wts.h5'
+train_data = get_dataduncanp(0,290)
 X_train = train_data[0]
 Y_train = train_data[1]
-test_data = get_dataduncan(290,340)
+test_data = get_dataduncanp(290,340)
 X_test = test_data[0]
 Y_test = test_data[1]
 
@@ -37,11 +37,11 @@ print("Y size", Y_train.shape)
 # X_test = np.expand_dims(X_test, axis=2)
 
 model = Sequential()
-# model.add(Conv1D(1, 2, strides=2, input_shape = (32,1), padding = 'same', activation = 'sigmoid'))
+# model.add(Conv1D(1, 3, strides=3, input_shape = (45,1), padding = 'same', activation = 'sigmoid'))
 # model.add(Flatten())
-model.add(Dense(16,input_dim = 32, activation='sigmoid'))
-model.add(Dense(16, activation='sigmoid'))
-model.add(Dense(16, activation='sigmoid'))
+model.add(Dense(15,input_dim = 45, activation='sigmoid'))
+model.add(Dense(15, activation='sigmoid'))
+model.add(Dense(15, activation='sigmoid'))
 model.add(Dense(8, activation='sigmoid'))
 model.add(Dense(output_dim, activation='softmax'))
 model.summary()

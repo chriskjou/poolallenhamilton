@@ -6,13 +6,13 @@ from keras.models import model_from_json, model_from_yaml
 import matplotlib.pyplot as plt
 import sys
 sys.path.insert(0, '../')
-from readercleaner import get_dataduncan
+from readercleaner import get_dataduncanp
 
 # rather, for pool
 output_dim = 3
-model_dir = 'duncan_model.json'
-weights_dir = 'duncan_wts.h5'
-test_data = get_dataduncan(20,21)
+model_dir = 'duncanp_model.json'
+weights_dir = 'duncanp_wts.h5'
+test_data = get_dataduncanp(20,21)
 X_test = test_data[0]
 Y_test = test_data[1]
 
