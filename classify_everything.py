@@ -29,10 +29,7 @@ smallwindow_step = 23
 num_scans = (window_size - smallwindow_size) // smallwindow_step + 1
 print("num_scans is", num_scans)
 
-### SLIDER SETUP
-ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=True, help="Path to the image")
-args = vars(ap.parse_args())
+# No need for slider setup
 
 def truncate(f, n):
   # Truncates/pads a float f to n decimal places without rounding
@@ -42,7 +39,7 @@ def truncate(f, n):
   i, p, d = s.partition('.')
   return '.'.join([i, (d+'0'*n)[:n]])
 
-folders = glob.glob('../../cropped_images_ff/*') # change to suit your needs
+folders = glob.glob('../../cropped_images_new/*') # change to suit your needs
 folders.sort()
 for folder in folders:
   images = glob.glob(folder+'/*.jpg')

@@ -15,11 +15,11 @@ from readercleaner import get_data
 output_dim = 1
 model_dir = 'simple_model.json'
 weights_dir = 'simple_wts.h5'
-train_data = get_data(0,200)
-X_train = train_data[['x','y']].as_matrix()
+train_data = get_data(0,100)
+X_train = train_data[['x','y','cuex','cuey']].as_matrix()
 Y_train = train_data[['diff']].as_matrix()
-test_data = get_data(200,250)
-X_test = test_data[['x','y']].as_matrix()
+test_data = get_data(100,125)
+X_test = test_data[['x','y','cuex','cuey']].as_matrix()
 Y_test = test_data[['diff']].as_matrix()
 
 
@@ -42,18 +42,18 @@ print(X_test.shape)
 model = Sequential()
 #model.add(Conv1D(1, 2, strides=2, input_shape = (32,1), padding = 'same', activation = 'sigmoid'))
 #model.add(Flatten())
-model.add(Dense(16,input_dim = 32, activation='sigmoid'))
-model.add(Dense(16, activation='sigmoid'))
-model.add(Dense(16, activation='sigmoid'))
-model.add(Dense(8, activation='sigmoid'))
-model.add(Dense(output_dim, activation='softmax'))
+model.add(Dense(10,input_dim = 4, activation='sigmoid'))
+model.add(Dense(10, activation='sigmoid'))
+model.add(Dense(10, activation='sigmoid'))
+model.add(Dense(5, activation='sigmoid'))
+model.add(Dense(output_dim, activation='sigmoid'))
 model.summary()
 batch_size = 32
 nb_epoch = 20
 
 # compile the model
 
-sgd = optimizers.SGD(lr=0.01) # added a higher learning rate
+sgd = optimizers.SGD() # added a higher learning rate
 model.compile(optimizer=sgd, loss='mean_absolute_error', metrics=['accuracy']) # changed optim, error
 history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)

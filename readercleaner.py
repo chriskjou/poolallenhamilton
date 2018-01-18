@@ -28,12 +28,22 @@ def get_meta(gamepath):
         meta = next(reader)
     return meta
 
+# added a lot of nonsense into this one
 # TODO: duplicate later frames! (or just give it the second half of the game?)
 # type, x, y, frame, winner (1 if stripes wins)
 def get_game_data(gamepath):
     def append_frame(csvpath, i):
         df = get_image_data(csvpath)
         df['frame'] = i
+        if 'cue' not in df['balltype'].values: # delete all this nonsense later
+            return None
+        cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
+        df = df[df['balltype']!='cue']
+        if not len(df):
+            return None
+        df['cuex'] = cue.x
+        df['cuey'] = cue.y
+        df['diff'] = df.apply(lambda x: diff1(x,cue), axis=1)
         return df
     nframes = len(glob.glob(gamepath+'/frame*'))//2
     csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
@@ -44,16 +54,11 @@ def get_game_data(gamepath):
     df['winner'] = winner
     return df
 
-# type, x, y, frame, winner, game
+# type, x, y, frame, winner, game, (cuex, cuey, diff nonsense)
 def get_data(start, end):
     def append_game(i):
         df = get_game_data(folders[i])
         df['game'] = i
-        if 'cue' not in df['balltype'].values: # delete all this nonsense later
-            return None
-        cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
-        df = df[df['balltype']!='cue']
-        df['diff'] = df.apply(lambda x: diff1(x,cue), axis=1)
         return df
     return pd.concat([append_game(i) for i in range(start, end)], ignore_index=True)
 
@@ -111,6 +116,8 @@ def diff(ball):
 def diff1(ball, cue):
     d = 0 # artificially low number
     ball = ball[['x','y']].values
+    if ball.tolist() in pockets:
+        ball -= 1 # avoid div by 0 error
     cue = cue.values
     for pocket in pockets:
         theta = angle_between(cue - ball, pocket - ball)
@@ -120,8 +127,8 @@ def diff1(ball, cue):
         d2 = np.linalg.norm(pocket - ball)
         diff = np.cos(theta) / d1 / d2
         d = diff if diff > d else d
-    return d
-    # TODO: these values are tiny! (e-6): maybe I should multiply d by a large constant before returning?
+    return d * 10 ** 6
+    # These values are tiny! hence I multiply d by a large constant before returning?
     # or I could normalize the values afterward
 
     # TODO: what about obstacle balls?
