@@ -28,21 +28,20 @@ def get_meta(gamepath):
         meta = next(reader)
     return meta
 
-# added a lot of nonsense into this one
+# TODO: added a lot of nonsense into this one. clean it up
 # TODO: duplicate later frames! (or just give it the second half of the game?)
-# type, x, y, frame, winner (1 if stripes wins)
+# type, x, y, frame, winner (1 if stripes wins), (cuex, cuey, diff nonsense)
 def get_game_data(gamepath):
     def append_frame(csvpath, i):
         df = get_image_data(csvpath)
         df['frame'] = i
-        if 'cue' not in df['balltype'].values: # delete all this nonsense later
-            return None
+        if 'cue' not in df['balltype'].values:
+            return None # skip if no cue
         cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
         df = df[df['balltype']!='cue']
         if not len(df):
-            return None
-        df['cuex'] = cue.x
-        df['cuey'] = cue.y
+            return None # skip if only a cue ball
+        df['cuex'], df['cuey'] = cue.x, cue.y # for "simple" network
         df['diff'] = df.apply(lambda x: diff1(x,cue), axis=1)
         return df
     nframes = len(glob.glob(gamepath+'/frame*'))//2
@@ -76,7 +75,7 @@ def get_data1(start, end):
         for csv in csvs[3:]: # drop first 3 frames
             imgdf = get_image_data(csv)
             if imgdf.empty:
-                continue
+                continue # skip if empty data
             ct = imgdf['balltype'].value_counts()
             newrow = np.zeros(4)
             newrow[0] = ct.stripes if 'stripes' in ct.index else 0
@@ -88,7 +87,7 @@ def get_data1(start, end):
             df.loc[len(df)] = newrow
     return df
 
-################
+########################################
 
 pockets = [[0,0],[790,0],[1580,0],[0,790],[790,790],[1580,790]]
 
@@ -113,6 +112,8 @@ def diff(ball):
 
 # analytical difficulty (other formulae also exist)
 # higher is better
+# TODO: is this actually reasonable?
+# TODO: what about obstacle balls?
 def diff1(ball, cue):
     d = 0 # artificially low number
     ball = ball[['x','y']].values
@@ -122,22 +123,20 @@ def diff1(ball, cue):
     for pocket in pockets:
         theta = angle_between(cue - ball, pocket - ball)
         if theta > 1.58:
-            continue
+            continue # skip if not cuttable angle
         d1 = np.linalg.norm(ball - cue)
         d2 = np.linalg.norm(pocket - ball)
         diff = np.cos(theta) / d1 / d2
         if diff > d:
             d = diff
-            data = [theta,d1,d2]
     return d * 10 ** 6
-    # These values are tiny! hence I multiply d by a large constant before returning?
+    # values are tiny! hence i multiply d by a large constant before returning
     # or I could normalize the values afterward
 
-    # TODO: what about obstacle balls?
-
-# same exact thing
+# TODO: same exact problems
 def diffseries(ball, cue):
-    d = 0 # artificially low number
+    d = 0
+    data = [0,0,0] # don't have any better ideas
     ball = ball[['x','y']].values
     if ball.tolist() in pockets:
         ball -= 1 # avoid div by 0 error
@@ -145,7 +144,7 @@ def diffseries(ball, cue):
     for pocket in pockets:
         theta = angle_between(cue - ball, pocket - ball)
         if theta > 1.58:
-            continue
+            continue # skip if not cuttable angle
         d1 = np.linalg.norm(ball - cue)
         d2 = np.linalg.norm(pocket - ball)
         diff = np.cos(theta) / d1 / d2
@@ -154,7 +153,7 @@ def diffseries(ball, cue):
             data = [theta,d1,d2]
     return pd.Series({'theta':data[0], 'd1':data[1],'d2':data[2]})
 
-# Just eyeballed these thresholds
+# TODO: adjust these threshold values
 # 0 for easy, 1 for med, 2 for hard
 def zone(ball):
     d = diff(ball)
@@ -164,6 +163,8 @@ def zone(ball):
         return 1
     else:
         return 2
+
+#######################################
 
 # easystripe, easysolid, medstripe, medsolid, hardstripe, hardsolid, winner, game
 def get_data2(start, end):
@@ -175,12 +176,12 @@ def get_data2(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        if len(csvs) < 14:
+        if len(csvs) < 10:
             continue
-        for csv in csvs[3:-10]: # drop first 3 frames
+        for csv in csvs[3:]: # drop first 3 frames
             imgdf = get_image_data(csv)
             if imgdf.empty:
-                continue
+                continue # skip if empty data
             imgdf['diff'] = imgdf.apply(zone, axis=1)
             imgdf = imgdf.groupby(['balltype','diff']).count()
             newrow = np.zeros(len(cols)+2)
@@ -194,7 +195,7 @@ def get_data2(start, end):
     return df
 
 # numstripes, numsolids, d2 for each stripe, d2 for each solid, winner, game
-# each ball ordered by difficulty
+# balls ordered by difficulty. Swap cos(theta)/d1/d2 for d2 by switching the commented thing
 def get_data3(start, end):
     df = pd.DataFrame(columns=['numstripe','numsolid']+['stripe'+str(i) for i in range(7)]+['solid'+str(i) for i in range(7)]+['winner','game'])
     for i in range(start, end):
@@ -203,14 +204,14 @@ def get_data3(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        if len(csvs) < 14:
+        if len(csvs) < 10:
             continue
-        for csv in csvs[-10:]: # drop first 3 frames
+        for csv in csvs[3:]: # drop first 3 frames
             imgdf = get_image_data(csv)
             if imgdf.empty:
-                continue
+                continue # skip if empty data
             if 'cue' not in imgdf['balltype'].values:
-                continue
+                continue # i need cue ball
             imgdf = imgdf[imgdf['balltype']!='cue']
             cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
             imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
@@ -226,13 +227,16 @@ def get_data3(start, end):
             newrow[2:(2+len(stripedf))] = stripedf['diff']
             newrow[9:(9+len(soliddf))] = soliddf['diff']
             df.loc[len(df)] = newrow
+            # TODO: rewrite this (and others like it) for efficient concatenation
     return df
 
-#####
+####################################################
 
 # TODO: still wanna throw out frames so liberally?
+# tuple of X and Y, X is (ndata,16,2) and Y is (ndata,)
+# X is cartesian coordinates for solids, stripes, cue, eight
 def get_dataduncan(start, end):
-    X = np.zeros((1,16,2))
+    X = np.zeros((1,16,2)) # just initialize these for concatenation
     Y = np.zeros(1)
     for i in range(start, end):
         gamepath = folders[i]
@@ -244,7 +248,7 @@ def get_dataduncan(start, end):
             continue
         lastballs = (7,7)
         for csv in csvs[3:]: # drop first 3 frames
-            newrow = np.zeros((16,2)) # cartesian... zeros has another interpretation
+            newrow = np.zeros((16,2)) # cartesian... unfortunately 0 has another interpretation
             imgdf = get_image_data(csv)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='x') # arbitrary
             soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='x')
@@ -253,21 +257,23 @@ def get_dataduncan(start, end):
             newrow[:len(soliddf),:] = soliddf[['x','y']]
             newrow[7:(7+len(stripedf)),:] = stripedf[['x','y']]
             if 'cue' not in imgdf['balltype'].values or 'eight_ball' not in imgdf['balltype'].values:
-                continue
+                continue # stricter assumptions on what balls exist
             newrow[14,:] = imgdf[imgdf['balltype']=='cue'][['x','y']]
             newrow[15,:] = imgdf[imgdf['balltype']=='eight_ball'][['x','y']]
             X = np.concatenate((X,newrow[np.newaxis]))
             Y = np.append(Y,lastballs[1]-len(stripedf)-lastballs[0]+len(soliddf))
-    X = X.reshape(X.shape[0],32)
-    Y = Y.clip(-1,1)
+    X = X.reshape(X.shape[0],32) # easier for keras conv1d
+    Y = Y.clip(-1,1) # simplify num categories
     X = X[1:]
     Y = Y[1:]
     return (X,Y)
 
 
-# exact same thing, with polar coords
+# TODO: same exact probs
+# same exact thing with "polar" coords (theta, d1, d2) for each solid/stripe/eight
+# TODO: maybe wanna store cue ball's x and y coords?
 def get_dataduncanp(start, end):
-    X = np.zeros((1,16,2))
+    X = np.zeros((1,15,3))
     Y = np.zeros(1)
     for i in range(start, end):
         gamepath = folders[i]
@@ -282,12 +288,11 @@ def get_dataduncanp(start, end):
             newrow = np.zeros((15,3)) # "polar" now
             imgdf = get_image_data(csv)
             if 'cue' not in imgdf['balltype'].values or 'eight_ball' not in imgdf['balltype'].values:
-                continue
+                continue # stricter assumptions on what balls exist
             cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
-            # TODO: wanna store cue ball's x and y coords?
             df = df[df['balltype']!='cue']
             if not len(df):
-                return None
+                continue # skip if only a cue ball
             df = df.merge(df.apply(lambda s: diffseries(s,cue),axis=1),left_index=True,right_index=True)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='d1') # arbitrary
             soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='d1')
@@ -295,12 +300,11 @@ def get_dataduncanp(start, end):
                 continue # throw out obvious mistakes (and it's 7 this time)
             newrow[:len(soliddf),:] = soliddf[['theta','d1','d2']]
             newrow[7:(7+len(stripedf)),:] = stripedf[['theta','d1','d2']]
-            
             newrow[14,:] = imgdf[imgdf['balltype']=='eight_ball'][['theta','d1','d2']]
             X = np.concatenate((X,newrow[np.newaxis]))
             Y = np.append(Y,lastballs[1]-len(stripedf)-lastballs[0]+len(soliddf))
-    X = X.reshape(X.shape[0],32)
-    Y = Y.clip(-1,1)
+    X = X.reshape(X.shape[0],45) # easier for keras conv1d
+    Y = Y.clip(-1,1) # simplify num categories
     X = X[1:]
     Y = Y[1:]
     return (X,Y)

@@ -24,11 +24,24 @@ Y_test = test_data[['winner']].as_matrix()
 print("X size", X_test.shape)
 print("Y size", Y_test.shape)
 
-
-
 model = model_from_json(open(model_dir).read())# if json
 # model = model_from_yaml(open('mnist_Logistic_model.yaml').read())# if yaml
 model.load_weights(weights_dir)
 
 print("winner is", Y_test[0])
 print("result is",model.predict(X_test))
+
+###############
+
+# untested
+heatmap = np.zeros((8,8))
+for numsolid in range(8):
+    for numstripe in range(8):
+        x = np.array([numsolid,numstripe])
+        heatmap[numsolid,numstripe] = model.predict(x[np.newaxis])[0][0]
+
+plt.imshow(heatmap)
+plt.title('Network Predictions (1 indicates stripe victory)')
+plt.xlabel('# solids on table')
+plt.ylabel('# stripes on table')
+plt.show()

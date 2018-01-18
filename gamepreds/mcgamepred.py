@@ -104,7 +104,7 @@ for x in range(1,8):
         trans_matrix[sx,0] = 1
 
 # there's only 2 absorbing states- don't need to rearrange matrix rows
-# and i don't need
+# and i don't need to chop away states that are all zeros
 
 # TODO: confirm that the matrix looks sane
 
