@@ -24,7 +24,7 @@ def diff1(ball, cue):
         diff = np.cos(theta)**(4.1-2.7*theta) / d1**0.33 / d2**0.38
         if diff > d:
             d = diff
-    return d
+    return min(d,1) # incredibly hacky
 
 ##################
 
