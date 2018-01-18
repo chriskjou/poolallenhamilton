@@ -41,6 +41,7 @@ for numsolid in range(8):
         heatmap[numsolid,numstripe] = model.predict(x[np.newaxis])[0][0]
 
 plt.imshow(heatmap)
+plt.colorbar()
 plt.title('Network Predictions (1 indicates stripe victory)')
 plt.xlabel('# solids on table')
 plt.ylabel('# stripes on table')

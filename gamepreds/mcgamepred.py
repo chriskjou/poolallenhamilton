@@ -47,13 +47,6 @@ for x in range(1,8):
     trans_matrix[sx,-1] = 1
 
 
-# a way to calculate probabilities of reaching absorbing states
-# Q is matrix part of all absorbing states. N=(I-Q)^-1. 
-# expected # steps before absorption, given a nonabsorbing start
-# expected # times visit nonabsorbing state j given nonabsorbing start
-# B = RN -> prob absorption in state i given nonabsorbing start
-# or take the trans matrix to infty power, instead of using B
-
 
 # ADAM AND EVE
 
@@ -83,9 +76,9 @@ for x in range(200):
         trans_matrix[s0,s1] += 1
 
 # normalize rows
-trans_matrix = trans_matrix[nstates, nstates]
+trans_matrix = trans_matrix[:nstates,:nstates]
 row_sums = trans_matrix.sum(axis=1)
-trans_matrix = trans_matrix / row_sums[:, np.newaxis]
+trans_matrix = trans_matrix / row_sums[:,np.newaxis]
 
 # make right states to absorb
 # state 0 is solid win, 1 is stripe win
@@ -108,3 +101,31 @@ for x in range(1,8):
 
 # TODO: confirm that the matrix looks sane
 
+# Fundamental Matrix Math
+# E(nsteps before absorption) starting from i is sum_j N_ji
+# E(nvisits to j) starting from i is N_ji
+# P(absorption in j) starting from i is B_ji
+# or take the trans matrix to infty power, instead of using B
+r = trans_matrix[:2,:]
+o = trans_matrix[:,:2]
+q = trans_matrix[:2,:2]
+n = np.linalg.inv(np.eye(q.shape[0])-q)
+b = np.matmul(r,n)
+assert(sum(b[:,2])==1) # sanity checks
+assert(sum(b[:,12])==1)
+print('prob of solid win', sum(b[0,:]))
+print('prob of stripe win', sum(b[1,:]))
+
+# untested
+heatmap = np.zeros((8,8))
+for numsolid in range(8):
+    for numstripe in range(8):
+        x = coords[(numsolid,numstripe)]
+        heatmap[numsolid,numstripe] = b[1,x]
+
+plt.imshow(heatmap)
+plt.colorbar()
+plt.title('MC Predictions (1 indicates stripe victory)')
+plt.xlabel('# solids on table')
+plt.ylabel('# stripes on table')
+plt.show()
