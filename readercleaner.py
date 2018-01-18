@@ -107,7 +107,7 @@ def diff(ball):
     return d
 
 # analytical difficulty (other formulae also exist)
-# higher is better
+# higher is bet ter
 def diff1(ball, cue):
     d = 0 # artificially low number
     ball = ball[['x','y']].values
