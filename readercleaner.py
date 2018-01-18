@@ -120,6 +120,8 @@ def diff1(ball, cue):
             continue
         d1 = np.linalg.norm(ball - cue)
         d2 = np.linalg.norm(pocket - ball)
+        d1 = 1 if d1==0 else d1 # avoid div by 0 error
+        d2 = 1 if d2==0 else d2
         diff = np.cos(theta) / d1 / d2
         d = diff if diff > d else d
     return d
