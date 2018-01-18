@@ -1,16 +1,18 @@
 from keras.datasets import mnist
 from keras.utils import np_utils
 from keras.models import Sequential
-from keras.layers import Dense, Activation
+from keras.layers import Dense, Activation, Flatten
+from keras.layers.convolutional import Conv1D
 from keras.models import model_from_json, model_from_yaml
 from keras import optimizers
 import matplotlib.pyplot as plt
+import numpy as np
 import sys
 sys.path.insert(0, '../')
 from readercleaner import get_dataduncan
 
 # rather, for pool
-output_dim = 1
+output_dim = 3
 model_dir = 'duncan_model.json'
 weights_dir = 'duncan_wts.h5'
 train_data = get_dataduncan(0,290)
@@ -20,29 +22,39 @@ test_data = get_dataduncan(290,340)
 X_test = test_data[0]
 Y_test = test_data[1]
 
+Y_train += 1
+Y_test += 1
 # is it ok if i don't convert class vectors to binary class matrices?
-# Y_train = np_utils.to_categorical(y_train, nb_classes)
-# Y_test = np_utils.to_categorical(y_test, nb_classes)
+Y_train = np_utils.to_categorical(Y_train, 3)
+Y_test = np_utils.to_categorical(Y_test, 3)
 
 print("X size", X_train.shape)
 print("Y size", Y_train.shape)
 
 # build the model
 
+# X_train = np.expand_dims(X_train, axis=2)
+# X_test = np.expand_dims(X_test, axis=2)
+
+print(X_train.shape)
+print(X_test.shape)
+
+
 model = Sequential()
-# TODO: change this all up! change it! change!
-model.add(Dense(14, input_dim=input_dim, activation='sigmoid')) # changed from softmax
-model.add(Dense(14, activation='sigmoid'))
-model.add(Dense(14, activation='sigmoid'))
-model.add(Dense(7, activation='sigmoid'))
-model.add(Dense(output_dim, activation='sigmoid'))
+#model.add(Conv1D(1, 2, strides=2, input_shape = (32,1), padding = 'same', activation = 'sigmoid'))
+#model.add(Flatten())
+model.add(Dense(16,input_dim = 32, activation='sigmoid'))
+model.add(Dense(16, activation='sigmoid'))
+model.add(Dense(16, activation='sigmoid'))
+model.add(Dense(8, activation='sigmoid'))
+model.add(Dense(output_dim, activation='softmax'))
 model.summary()
 batch_size = 32
-nb_epoch = 60
+nb_epoch = 20
 
 # compile the model
 
-sgd = optimizers.SGD(lr=0.05) # added a higher learning rate
+sgd = optimizers.SGD(lr=0.01) # added a higher learning rate
 model.compile(optimizer=sgd, loss='mean_absolute_error', metrics=['accuracy']) # changed optim, error
 history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)

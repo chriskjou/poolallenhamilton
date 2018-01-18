@@ -205,10 +205,10 @@ def get_dataduncan(start, end):
         winner = int(meta[2]==meta[3])
         nframes = len(glob.glob(gamepath+'/frame*'))//2
         csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
-        if len(csvs) < 14:
+        if len(csvs) < 10:
             continue
         lastballs = (7,7)
-        for csv in csvs[-10:]: # drop first 3 frames
+        for csv in csvs[3:]: # drop first 3 frames
             newrow = np.zeros((16,2)) # cartesian... zeros has another interpretation
             imgdf = get_image_data(csv)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='x') # arbitrary
@@ -223,6 +223,10 @@ def get_dataduncan(start, end):
             newrow[15,:] = imgdf[imgdf['balltype']=='eight_ball'][['x','y']]
             X = np.concatenate((X,newrow[np.newaxis]))
             Y = np.append(Y,lastballs[1]-len(stripedf)-lastballs[0]+len(soliddf))
+    X = X.reshape(X.shape[0],32)
+    Y = Y.clip(-1,1)
+    X = X[1:]
+    Y = Y[1:]
     return (X,Y)
 
 
