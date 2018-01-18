@@ -39,7 +39,7 @@ def get_game_data(gamepath):
             return None
         cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
         df = df[df['balltype']!='cue']
-        if len(df) > 0:
+        if not len(df):
             return None
         df['cuex'] = cue.x
         df['cuey'] = cue.y
@@ -127,8 +127,8 @@ def diff1(ball, cue):
         d2 = np.linalg.norm(pocket - ball)
         diff = np.cos(theta) / d1 / d2
         d = diff if diff > d else d
-    return d
-    # TODO: these values are tiny! (e-6): maybe I should multiply d by a large constant before returning?
+    return d * 10 ** 6
+    # These values are tiny! hence I multiply d by a large constant before returning?
     # or I could normalize the values afterward
 
     # TODO: what about obstacle balls?

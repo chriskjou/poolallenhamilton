@@ -13,7 +13,7 @@ from readercleaner import get_data
 output_dim = 1
 model_dir = 'simple_model.json'
 weights_dir = 'simple_wts.h5'
-test_data = get_data(200,250)
+test_data = get_data(20,21)
 X_test = test_data[['x','y','cuex','cuey']].as_matrix()
 Y_test = test_data[['diff']].as_matrix()
 

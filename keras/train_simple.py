@@ -15,11 +15,11 @@ from readercleaner import get_data
 output_dim = 1
 model_dir = 'simple_model.json'
 weights_dir = 'simple_wts.h5'
-train_data = get_data(0,200)
+train_data = get_data(0,100)
 X_train = train_data[['x','y','cuex','cuey']].as_matrix()
 Y_train = train_data[['diff']].as_matrix()
-test_data = get_data(200,250)
-X_test = test_data[['x','y']].as_matrix()
+test_data = get_data(100,125)
+X_test = test_data[['x','y','cuex','cuey']].as_matrix()
 Y_test = test_data[['diff']].as_matrix()
 
 
