@@ -111,9 +111,9 @@ def personalspace(heatmap,thresh):
         # print(bustmap)
         # print(maxcoord)
         # print(maxprob)
-        plt.imshow(bustmap)
+        # plt.imshow(bustmap)
 
-        plt.show()
+        # plt.show()
 
     balls = list(map(lambda ball: (ball[1]-r,ball[0]-r), balls)) # flipped?
     return balls

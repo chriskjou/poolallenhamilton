@@ -39,7 +39,7 @@ def truncate(f, n):
   i, p, d = s.partition('.')
   return '.'.join([i, (d+'0'*n)[:n]])
 
-folders = glob.glob('../../cropped_images_new/*') # change to suit your needs
+folders = glob.glob('../cropped_images_new/*') # change to suit your needs
 folders.sort()
 for folder in folders:
   images = glob.glob(folder+'/*.jpg')

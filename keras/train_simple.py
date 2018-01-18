@@ -15,10 +15,10 @@ from readercleaner import get_data
 output_dim = 1
 model_dir = 'simple_model.json'
 weights_dir = 'simple_wts.h5'
-train_data = get_data(0,100)
+train_data = get_data(0,10)
 X_train = train_data[['x','y','cuex','cuey']].as_matrix()
 Y_train = train_data[['diff']].as_matrix()
-test_data = get_data(100,125)
+test_data = get_data(10,20)
 X_test = test_data[['x','y','cuex','cuey']].as_matrix()
 Y_test = test_data[['diff']].as_matrix()
 
@@ -36,17 +36,19 @@ print("Y size", Y_train.shape)
 
 print(X_train.shape)
 print(X_test.shape)
+print(X_train)
+print(Y_train)
 
 # TODO: Duncan pls Change the model to your heart's delight!
 # And if you would like to scale the difficulties up, see my comment in the diff1 function in readercleaner
 model = Sequential()
 #model.add(Conv1D(1, 2, strides=2, input_shape = (32,1), padding = 'same', activation = 'sigmoid'))
 #model.add(Flatten())
-model.add(Dense(10,input_dim = 4, activation='sigmoid'))
-model.add(Dense(10, activation='sigmoid'))
-model.add(Dense(10, activation='sigmoid'))
-model.add(Dense(5, activation='sigmoid'))
-model.add(Dense(output_dim, activation='sigmoid'))
+#model.add(Dense(10,input_dim = 4, activation='sigmoid'))
+#model.add(Dense(10, activation='sigmoid'))
+#model.add(Dense(10, activation='sigmoid'))
+#model.add(Dense(5, activation='sigmoid'))
+model.add(Dense(output_dim, input_dim = 4, activation='sigmoid'))
 model.summary()
 batch_size = 32
 nb_epoch = 20
@@ -54,7 +56,7 @@ nb_epoch = 20
 # compile the model
 
 sgd = optimizers.SGD() # added a higher learning rate
-model.compile(optimizer=sgd, loss='mean_absolute_error', metrics=['accuracy']) # changed optim, error
+model.compile(optimizer=sgd, loss='mean_squared_error', metrics=['accuracy']) # changed optim, error
 history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test score:', score[0])
