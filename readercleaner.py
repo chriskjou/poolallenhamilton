@@ -126,12 +126,33 @@ def diff1(ball, cue):
         d1 = np.linalg.norm(ball - cue)
         d2 = np.linalg.norm(pocket - ball)
         diff = np.cos(theta) / d1 / d2
-        d = diff if diff > d else d
+        if diff > d:
+            d = diff
+            data = [theta,d1,d2]
     return d * 10 ** 6
     # These values are tiny! hence I multiply d by a large constant before returning?
     # or I could normalize the values afterward
 
     # TODO: what about obstacle balls?
+
+# same exact thing
+def diffseries(ball, cue):
+    d = 0 # artificially low number
+    ball = ball[['x','y']].values
+    if ball.tolist() in pockets:
+        ball -= 1 # avoid div by 0 error
+    cue = cue.values
+    for pocket in pockets:
+        theta = angle_between(cue - ball, pocket - ball)
+        if theta > 1.58:
+            continue
+        d1 = np.linalg.norm(ball - cue)
+        d2 = np.linalg.norm(pocket - ball)
+        diff = np.cos(theta) / d1 / d2
+        if diff > d:
+            d = diff
+            data = [theta,d1,d2]
+    return pd.Series({'theta':data[0], 'd1':data[1],'d2':data[2]})
 
 # Just eyeballed these thresholds
 # 0 for easy, 1 for med, 2 for hard
@@ -244,5 +265,42 @@ def get_dataduncan(start, end):
     return (X,Y)
 
 
-
-
+# exact same thing, with polar coords
+def get_dataduncanp(start, end):
+    X = np.zeros((1,16,2))
+    Y = np.zeros(1)
+    for i in range(start, end):
+        gamepath = folders[i]
+        meta = get_meta(gamepath)
+        winner = int(meta[2]==meta[3])
+        nframes = len(glob.glob(gamepath+'/frame*'))//2
+        csvs = [gamepath+'/frame'+str(i+1) for i in range(nframes)]
+        if len(csvs) < 10:
+            continue
+        lastballs = (7,7)
+        for csv in csvs[3:]: # drop first 3 frames
+            newrow = np.zeros((15,3)) # "polar" now
+            imgdf = get_image_data(csv)
+            if 'cue' not in imgdf['balltype'].values or 'eight_ball' not in imgdf['balltype'].values:
+                continue
+            cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
+            # TODO: wanna store cue ball's x and y coords?
+            df = df[df['balltype']!='cue']
+            if not len(df):
+                return None
+            df = df.merge(df.apply(lambda s: diffseries(s,cue),axis=1),left_index=True,right_index=True)
+            stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='d1') # arbitrary
+            soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='d1')
+            if len(stripedf) > 7 or len(soliddf) > 7:
+                continue # throw out obvious mistakes (and it's 7 this time)
+            newrow[:len(soliddf),:] = soliddf[['theta','d1','d2']]
+            newrow[7:(7+len(stripedf)),:] = stripedf[['theta','d1','d2']]
+            
+            newrow[14,:] = imgdf[imgdf['balltype']=='eight_ball'][['theta','d1','d2']]
+            X = np.concatenate((X,newrow[np.newaxis]))
+            Y = np.append(Y,lastballs[1]-len(stripedf)-lastballs[0]+len(soliddf))
+    X = X.reshape(X.shape[0],32)
+    Y = Y.clip(-1,1)
+    X = X[1:]
+    Y = Y[1:]
+    return (X,Y)
