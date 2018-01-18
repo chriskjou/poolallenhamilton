@@ -3,6 +3,7 @@ from keras.utils import np_utils
 from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.models import model_from_json, model_from_yaml
+import numpy as np
 import matplotlib.pyplot as plt
 import sys
 sys.path.insert(0, '../')
@@ -37,10 +38,11 @@ print("result is",model.predict(X_test))
 heatmap = np.zeros((8,8))
 for numsolid in range(8):
     for numstripe in range(8):
-        x = np.array([numsolid,numstripe])
+        x = np.array([numstripe,numsolid])
+        # a previous iteration of the keras model confusingly broke the "solids first" paradigm
         heatmap[numsolid,numstripe] = model.predict(x[np.newaxis])[0][0]
 
-plt.imshow(heatmap)
+plt.imshow(heatmap, origin='lower')
 plt.colorbar()
 plt.title('Network Predictions (1 indicates stripe victory)')
 plt.xlabel('# solids on table')
