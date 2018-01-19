@@ -122,11 +122,12 @@ def diff1(ball, cue):
     cue = cue.values
     for pocket in pockets:
         theta = angle_between(ball - cue, pocket - ball)
-        if theta > 1.58:
+        if theta > np.pi/2:
             continue # skip if not cuttable angle
         d1 = np.linalg.norm(ball - cue) / 100 # `\_(">)_/`
         d2 = np.linalg.norm(pocket - ball) / 100
         diff = np.cos(theta)**(4.1-2.7*theta) / d1**0.33 / d2**0.38
+        print(theta,d1,d2,diff)
         if diff > d:
             d = diff
     return min(d,1) # incredibly hacky
@@ -153,11 +154,11 @@ def diffseries(ball, cue):
 
 # TODO: adjust these threshold values
 # 0 for easy, 1 for med, 2 for hard
-def zone(ball):
-    d = diff(ball)
-    if d < 200:
+def zone(ball,cue):
+    d = diff1(ball,cue)
+    if d > 0.5:
         return 0
-    elif d < 430:
+    elif d > 0.2:
         return 1
     else:
         return 2
@@ -178,9 +179,13 @@ def get_data2(start, end):
             continue
         for csv in csvs[3:]: # drop first 3 frames
             imgdf = get_image_data(csv)
+            if 'cue' not in imgdf['balltype'].values:
+                continue # i need cue ball
+            cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
+            imgdf = imgdf[imgdf['balltype']!='cue']
             if imgdf.empty:
-                continue # skip if empty data
-            imgdf['diff'] = imgdf.apply(zone, axis=1)
+                continue # skip if empty data       
+            imgdf['diff'] = imgdf.apply(lambda x: zone(x,cue), axis=1)
             imgdf = imgdf.groupby(['balltype','diff']).count()
             newrow = np.zeros(len(cols)+2)
             newrow[-2] = winner
@@ -210,8 +215,8 @@ def get_data3(start, end):
                 continue # skip if empty data
             if 'cue' not in imgdf['balltype'].values:
                 continue # i need cue ball
-            imgdf = imgdf[imgdf['balltype']!='cue']
             cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
+            imgdf = imgdf[imgdf['balltype']!='cue']            
             imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
             # imgdf['diff'] = imgdf.apply(diff, axis=1)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='diff')
