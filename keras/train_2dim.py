@@ -12,7 +12,7 @@ from readercleaner import get_data1
 # rather, for pool
 input_dim = 2
 hidden_dim = 5
-output_dim = 1
+output_dim = 2 # TODO: change this back to 1 (and sigmoid to softmax) see if ok
 model_dir = '2dim_model.json'
 weights_dir = '2dim_wts.h5'
 train_data = get_data1(0,200)
@@ -22,8 +22,8 @@ test_data = get_data1(200,250)
 X_test = test_data[['numstripe','numsolid']].as_matrix()
 Y_test = test_data[['winner']].as_matrix()
 
-# Y_train = np_utils.to_categorical(y_train, nb_classes)
-# Y_test = np_utils.to_categorical(y_test, nb_classes)
+Y_train = np_utils.to_categorical(Y_train, nb_classes)
+Y_test = np_utils.to_categorical(Y_test, nb_classes)
 
 print("X size", X_train.shape)
 print("Y size", Y_train.shape)
@@ -31,19 +31,23 @@ print("Y size", Y_train.shape)
 # build the model
 model = Sequential()
 model.add(Dense(hidden_dim, input_dim=input_dim, activation='sigmoid')) # changed from softmax
-model.add(Dense(output_dim, activation='sigmoid'))
+model.add(Dense(output_dim, activation='softmax'))
 model.summary()
 batch_size = 64
-nb_epoch = 20
+nb_epoch = 40
 
 # compile the model
-
 sgd = optimizers.SGD(lr=0.01) # added a higher learning rate
 model.compile(optimizer=sgd, loss='mean_absolute_error', metrics=['accuracy']) # changed optim, error
-history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
+history = model.fit(X_train, Y_train, batch_size=batch_size, epochs=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
+
+# save losses
+loss_history = history.history["loss"]
+np_loss_history = np.array(loss_history)
+np.save('2dim_history',np_loss_history)
 
 # save model and weights
 

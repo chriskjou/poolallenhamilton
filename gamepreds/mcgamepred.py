@@ -1,54 +1,8 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import sys
 sys.path.insert(0, '../')
 from readercleaner import get_data1
-
-# TODO: Just realized a big mistake: I don't know when the eight ball gets sunk!
-# Right now I'm just assuming you win when you pot all your non-eight balls!
-# If lazy, I could just get the winner from the metadata
-
-num_states = 2**8
-trans_matrix = np.zeros((num_states+2, num_states+2))
-
-# markov chain: store transition probabilities
-# start with 2-dimensional
-# TODO: for 6-dim, need more efficient storing mech
-def state_id(state):
-    idx = state[0]
-    for num in state[1:]:
-        idx *= 7
-        idx += num
-    return idx
-
-# populate transition matrix
-for x in range(200):
-    # TODO: if we have another fn that gives strictly 1 image per shot, use that instead of get_data1
-    data = get_data1(x,x+1)
-    data['state_id'] = data[['numstripe','numsolid']].apply(state_id)
-    for i in range(len(data)-1):
-        trans_matrix[data.iloc[i].state_id, data.iloc[i+1].state_id] += 1
-
-# normalize rows
-row_sums = trans_matrix.sum(axis=1)
-trans_matrix = trans_matrix / row_sums[:, np.newaxis]
-
-# set absorbing states to 1
-# state -2 is stripe win, -1 is solid win
-trans_matrix[-2,-2] = 1
-trans_matrix[-1,-1] = 1
-for x in range(1,8):
-    # for stripes
-    sx = state_id([0,x])
-    trans_matrix[sx,:] = np.zeros(num_states+2)
-    trans_matrix[sx,-2] = 1
-    # for solids
-    sx = state_id([x,0])
-    trans_matrix[sx,:] = np.zeros(num_states+2)
-    trans_matrix[sx,-1] = 1
-
-
-
-# ADAM AND EVE
 
 trans_matrix = np.zeros((1000,1000)) # ludicrously high
 nstates = 2
@@ -57,7 +11,6 @@ coords = {}
 
 # populate transition matrix
 for x in range(200):
-    # TODO: if we have another fn that gives strictly 1 image per shot, use that instead of get_data1
     data = get_data1(x,x+1)
     transes = data[['numstripe','numsolid']].apply(tuple, axis=1)
     for i in range(len(transes)-1):
@@ -76,14 +29,17 @@ for x in range(200):
         trans_matrix[s0,s1] += 1
 
 # normalize rows
+trans_matrix[0,0] = 1
+trans_matrix[1,1] = 1 
 trans_matrix = trans_matrix[:nstates,:nstates]
 row_sums = trans_matrix.sum(axis=1)
 trans_matrix = trans_matrix / row_sums[:,np.newaxis]
 
 # make right states to absorb
 # state 0 is solid win, 1 is stripe win
-trans_matrix[0,0] = 1
-trans_matrix[1,1] = 1 
+# TODO: Just realized a big mistake: I don't know when the eight ball gets sunk!
+# Right now I'm just assuming you win when you pot all your non-eight balls!
+# If lazy, I could just get the winner from the metadata
 for x in range(1,8):
     # for stripes win
     if (0,x) in coords.keys():
@@ -106,24 +62,24 @@ for x in range(1,8):
 # E(nvisits to j) starting from i is N_ji
 # P(absorption in j) starting from i is B_ji
 # or take the trans matrix to infty power, instead of using B
-r = trans_matrix[:2,:]
-o = trans_matrix[:,:2]
-q = trans_matrix[:2,:2]
+trans_matrix = trans_matrix.transpose()
+r = trans_matrix[:2,2:]
+q = trans_matrix[2:,2:]
 n = np.linalg.inv(np.eye(q.shape[0])-q)
 b = np.matmul(r,n)
-assert(sum(b[:,2])==1) # sanity checks
-assert(sum(b[:,12])==1)
-print('prob of solid win', sum(b[0,:]))
-print('prob of stripe win', sum(b[1,:]))
+# np.sum(b,axis=0)
+print('prob of solid win', sum(b[0])/(nstates-2))
+print('prob of stripe win', sum(b[1])/(nstates-2))
 
 # untested
 heatmap = np.zeros((8,8))
 for numsolid in range(8):
     for numstripe in range(8):
-        x = coords[(numsolid,numstripe)]
-        heatmap[numsolid,numstripe] = b[1,x]
+        if (numsolid,numstripe) in coords.keys():
+            x = coords[(numsolid,numstripe)]
+            heatmap[numsolid,numstripe] = b[1,x-2]
 
-plt.imshow(heatmap)
+plt.imshow(heatmap,origin='lower')
 plt.colorbar()
 plt.title('MC Predictions (1 indicates stripe victory)')
 plt.xlabel('# solids on table')
