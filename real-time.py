@@ -3,7 +3,6 @@ import glob
 print(cv2.__version__)
 
 vids = glob.glob('1.mp4')
-# vids = vids[99:]
 for vid in vids:
 	vidcap = cv2.VideoCapture(vid)
 	vid = vid.split('.mp4')[0]

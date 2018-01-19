@@ -17,25 +17,6 @@ def lovelyplot(arr, name, bsq):
     plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
     plt.show()
 
-"""
-def annotatePlot(arr, name, where_balls):
-    plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
-    plt.colorbar()
-    plt.xlabel('long edge')
-    plt.ylabel('short edge')
-    for each in where_balls:
-        if (each[0] == 'stripe' and name == 'stripefullwithboxes') or (each[0] == 'solid' and name == 'solidfullwithboxes'):
-            plt.plot(each[1],each[2], 'ro')
-            plt.text(each[1], each[2], each[0])
-    if name == 'stripefullwithboxes':
-        plt.title("stripeswithlabels")
-        plt.savefig("../memes/stripeswithlabels", vmin=0, vmax=1)
-    else:
-        plt.title("solidswithlabels")
-        plt.savefig("../memes/solidswithlabels", vmin=0, vmax=1)
-    plt.show()
-"""
-
 class Thresholder:
     def __init__(self, heatmap, threshold, ballsquare):
         self.heatmap = heatmap
@@ -89,11 +70,12 @@ class Thresholder:
             self.balls.append((ball[1], ball[0]))
         return self.balls
 
-# Personal Space Ballfinder
+# personal space ballfinder
 r = 2 # radius of squisher
 squisher = np.array([[.51,.51,.51,.51,.51],[.51,.1,.1,.1,.51],[.51,.1,.01,.1,.51],[.51,.1,.1,.1,.51],[.51,.51,.51,.51,.51]])
 assert(squisher.shape[0] == 2 * r + 1)
 
+# gets a list of balls identified as (type, x, y)
 def personalspace(heatmap,thresh):
     count = 0
     balls = []
@@ -108,12 +90,5 @@ def personalspace(heatmap,thresh):
         maxcoord = np.argmax(bustmap)
         maxcoord = (maxcoord // bustmap.shape[1], maxcoord % bustmap.shape[1])
         maxprob = bustmap[maxcoord[0],maxcoord[1]]
-        # print(bustmap)
-        # print(maxcoord)
-        # print(maxprob)
-        # plt.imshow(bustmap)
-
-        # plt.show()
-
-    balls = list(map(lambda ball: (ball[1]-r,ball[0]-r), balls)) # flipped?
+    balls = list(map(lambda ball: (ball[1]-r,ball[0]-r), balls))
     return balls

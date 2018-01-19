@@ -64,4 +64,3 @@ def getImages(vids):
 						count+=1
 						pictures.append(nextimage)
 getImages(vids)
-
