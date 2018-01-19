@@ -1,4 +1,4 @@
-"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -70,7 +70,7 @@ end = time.time()
 print("RUNTIME", end - start)
 heatmap = heatmap.transpose(1,0,2)
 plt.imshow(heatmap)
-# plt.show()
+plt.show()
 # print(heatmap)
 
 # Old classify
@@ -296,3 +296,4 @@ newimage = cv2.imread(name + 'labels.jpg')
 newimage = newimage[117:367,80:578]
 cv2.imwrite(name + 'labels.jpg', newimage)
 #plt.show()
+"""
