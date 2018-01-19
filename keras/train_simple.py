@@ -30,15 +30,6 @@ Y_test = test_data[['diff']].as_matrix()
 print("X size", X_train.shape)
 print("Y size", Y_train.shape)
 
-
-# X_train = np.expand_dims(X_train, axis=2)
-# X_test = np.expand_dims(X_test, axis=2)
-
-print(X_train.shape)
-print(X_test.shape)
-print(X_train)
-print(Y_train)
-
 # TODO: Duncan pls Change the model to your heart's delight!
 # And if you would like to scale the difficulties up, see my comment in the diff1 function in readercleaner
 model = Sequential()
@@ -57,10 +48,16 @@ nb_epoch = 20
 
 sgd = optimizers.SGD() # added a higher learning rate
 model.compile(optimizer=sgd, loss='mean_squared_error', metrics=['accuracy']) # changed optim, error
-history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
+history = model.fit(X_train, Y_train, batch_size=batch_size, epochs=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
+
+# save losses
+loss_history = history.history["loss"]
+np_loss_history = np.array(loss_history)
+print(np_loss_history.shape)
+np.save('simple_history',np_loss_history)
 
 # save model and weights
 

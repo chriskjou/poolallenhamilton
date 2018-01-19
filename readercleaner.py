@@ -127,7 +127,6 @@ def diff1(ball, cue):
         d1 = np.linalg.norm(ball - cue) / 100 # `\_(">)_/`
         d2 = np.linalg.norm(pocket - ball) / 100
         diff = np.cos(theta)**(4.1-2.7*theta) / d1**0.33 / d2**0.38
-        print(theta,d1,d2,diff)
         if diff > d:
             d = diff
     return min(d,1) # incredibly hacky
@@ -156,9 +155,9 @@ def diffseries(ball, cue):
 # 0 for easy, 1 for med, 2 for hard
 def zone(ball,cue):
     d = diff1(ball,cue)
-    if d > 0.5:
+    if d > 0.3:
         return 0
-    elif d > 0.2:
+    elif d > 0.15:
         return 1
     else:
         return 2
@@ -198,7 +197,7 @@ def get_data2(start, end):
     return df
 
 # numstripes, numsolids, d2 for each stripe, d2 for each solid, winner, game
-# balls ordered by difficulty. Swap cos(theta)/d1/d2 for d2 by switching the commented thing
+# balls ordered by difficulty. Swap analytical diff for d2 by switching the commented thing
 def get_data3(start, end):
     df = pd.DataFrame(columns=['numstripe','numsolid']+['stripe'+str(i) for i in range(7)]+['solid'+str(i) for i in range(7)]+['winner','game'])
     for i in range(start, end):
@@ -211,12 +210,12 @@ def get_data3(start, end):
             continue
         for csv in csvs[3:]: # drop first 3 frames
             imgdf = get_image_data(csv)
-            if imgdf.empty:
-                continue # skip if empty data
             if 'cue' not in imgdf['balltype'].values:
                 continue # i need cue ball
             cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
-            imgdf = imgdf[imgdf['balltype']!='cue']            
+            imgdf = imgdf[imgdf['balltype']!='cue']
+            if imgdf.empty:
+                continue # skip if empty data      
             imgdf['diff'] = imgdf.apply(lambda x: diff1(x,cue), axis=1)
             # imgdf['diff'] = imgdf.apply(diff, axis=1)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='diff')
@@ -292,11 +291,11 @@ def get_dataduncanp(start, end):
             imgdf = get_image_data(csv)
             if 'cue' not in imgdf['balltype'].values or 'eight_ball' not in imgdf['balltype'].values:
                 continue # stricter assumptions on what balls exist
-            cue = df[df['balltype']=='cue'][['x','y']].iloc[0]
-            df = df[df['balltype']!='cue']
-            if not len(df):
+            cue = imgdf[imgdf['balltype']=='cue'][['x','y']].iloc[0]
+            imgdf = imgdf[imgdf['balltype']!='cue']
+            if not len(imgdf):
                 continue # skip if only a cue ball
-            df = df.merge(df.apply(lambda s: diffseries(s,cue),axis=1),left_index=True,right_index=True)
+            imgdf = imgdf.merge(imgdf.apply(lambda s: diffseries(s,cue),axis=1),left_index=True,right_index=True)
             stripedf = imgdf[imgdf['balltype']=='stripes'].sort_values(by='d1') # arbitrary
             soliddf = imgdf[imgdf['balltype']=='solids'].sort_values(by='d1')
             if len(stripedf) > 7 or len(soliddf) > 7:

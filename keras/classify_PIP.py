@@ -4,6 +4,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.models import model_from_json, model_from_yaml
 import matplotlib.pyplot as plt
+import numpy as np
 import sys
 sys.path.insert(0, '../')
 from readercleaner import get_data3
