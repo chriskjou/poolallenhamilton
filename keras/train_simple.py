@@ -15,10 +15,12 @@ from readercleaner import get_data
 output_dim = 1
 model_dir = 'simple_model.json'
 weights_dir = 'simple_wts.h5'
-train_data = get_data(0,10)
+train_data = get_data(0,100)
+train_data = train_data.sample(frac=1).reset_index(drop=True)
 X_train = train_data[['x','y','cuex','cuey']].as_matrix()
 Y_train = train_data[['diff']].as_matrix()
-test_data = get_data(10,20)
+test_data = get_data(100,120)
+test_data = test_data.sample(frac=1).reset_index(drop=True)
 X_test = test_data[['x','y','cuex','cuey']].as_matrix()
 Y_test = test_data[['diff']].as_matrix()
 
@@ -30,15 +32,6 @@ Y_test = test_data[['diff']].as_matrix()
 print("X size", X_train.shape)
 print("Y size", Y_train.shape)
 
-
-# X_train = np.expand_dims(X_train, axis=2)
-# X_test = np.expand_dims(X_test, axis=2)
-
-print(X_train.shape)
-print(X_test.shape)
-print(X_train)
-print(Y_train)
-
 # TODO: Duncan pls Change the model to your heart's delight!
 # And if you would like to scale the difficulties up, see my comment in the diff1 function in readercleaner
 model = Sequential()
@@ -48,19 +41,27 @@ model = Sequential()
 #model.add(Dense(10, activation='sigmoid'))
 #model.add(Dense(10, activation='sigmoid'))
 #model.add(Dense(5, activation='sigmoid'))
-model.add(Dense(output_dim, input_dim = 4, activation='sigmoid'))
+model.add(Dense(25, input_dim = 4, activation='sigmoid'))
+model.add(Dense(15, activation='sigmoid'))
+model.add(Dense(10, activation='sigmoid'))
+model.add(Dense(output_dim, activation='sigmoid'))
 model.summary()
-batch_size = 32
-nb_epoch = 20
+batch_size = 200
+nb_epoch = 40
 
 # compile the model
 
 sgd = optimizers.SGD() # added a higher learning rate
-model.compile(optimizer=sgd, loss='mean_squared_error', metrics=['accuracy']) # changed optim, error
-history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
+model.compile(optimizer=sgd, loss='mean_squared_error') # changed optim, error
+history = model.fit(X_train, Y_train, batch_size=batch_size, epochs=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)
-print('Test score:', score[0])
-print('Test accuracy:', score[1])
+print('Test score:', score)
+
+# save losses
+loss_history = history.history["loss"]
+np_loss_history = np.array(loss_history)
+print(np_loss_history.shape)
+np.save('simple_history',np_loss_history)
 
 # save model and weights
 

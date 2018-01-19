@@ -4,6 +4,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.models import model_from_json, model_from_yaml
 from keras import optimizers
+import numpy as np
 import matplotlib.pyplot as plt
 import sys
 sys.path.insert(0, '../')
@@ -36,7 +37,7 @@ model.add(Dense(6, activation='sigmoid'))
 model.add(Dense(output_dim, activation='sigmoid'))
 model.summary()
 batch_size = 64
-nb_epoch = 20
+nb_epoch = 40
 
 # compile the model
 
@@ -46,6 +47,12 @@ history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,v
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
+
+# save losses
+loss_history = history.history["loss"]
+np_loss_history = np.array(loss_history)
+print(np_loss_history.shape)
+np.save('6dim_history',np_loss_history)
 
 # save model and weights
 

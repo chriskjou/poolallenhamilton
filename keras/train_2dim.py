@@ -5,6 +5,7 @@ from keras.layers import Dense, Activation
 from keras.models import model_from_json, model_from_yaml
 from keras import optimizers
 import matplotlib.pyplot as plt
+import numpy as np
 import sys
 sys.path.insert(0, '../')
 from readercleaner import get_data1
@@ -22,8 +23,8 @@ test_data = get_data1(200,250)
 X_test = test_data[['numstripe','numsolid']].as_matrix()
 Y_test = test_data[['winner']].as_matrix()
 
-Y_train = np_utils.to_categorical(Y_train, nb_classes)
-Y_test = np_utils.to_categorical(Y_test, nb_classes)
+Y_train = np_utils.to_categorical(Y_train, output_dim)
+Y_test = np_utils.to_categorical(Y_test, output_dim)
 
 print("X size", X_train.shape)
 print("Y size", Y_train.shape)
@@ -47,6 +48,7 @@ print('Test accuracy:', score[1])
 # save losses
 loss_history = history.history["loss"]
 np_loss_history = np.array(loss_history)
+print(np_loss_history.shape)
 np.save('2dim_history',np_loss_history)
 
 # save model and weights

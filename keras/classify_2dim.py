@@ -34,7 +34,6 @@ print("result is",model.predict(X_test))
 
 ###############
 
-# untested
 heatmap = np.zeros((8,8))
 for numsolid in range(8):
     for numstripe in range(8):

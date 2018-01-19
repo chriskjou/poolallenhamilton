@@ -5,6 +5,7 @@ from keras.layers import Dense, Activation
 from keras.models import model_from_json, model_from_yaml
 from keras import optimizers
 import matplotlib.pyplot as plt
+import numpy as np
 import sys
 sys.path.insert(0, '../')
 from readercleaner import get_data3
@@ -45,10 +46,16 @@ nb_epoch = 60
 
 sgd = optimizers.SGD(lr=0.05) # added a higher learning rate
 model.compile(optimizer=sgd, loss='mean_absolute_error', metrics=['accuracy']) # changed optim, error
-history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
+history = model.fit(X_train, Y_train, batch_size=batch_size, epochs=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
+
+# save losses
+loss_history = history.history["loss"]
+np_loss_history = np.array(loss_history)
+print(np_loss_history.shape)
+np.save('pip_history',np_loss_history)
 
 # save model and weights
 

@@ -13,8 +13,8 @@ from readercleaner import get_dataduncan
 
 # rather, for pool
 output_dim = 3
-model_dir = 'duncan_model.json'
-weights_dir = 'duncan_wts.h5'
+model_dir = 'conv_duncan_model.json'
+weights_dir = 'conv_duncan_wts.h5'
 train_data = get_dataduncan(0,290)
 X_train = train_data[0]
 Y_train = train_data[1]
@@ -33,12 +33,12 @@ print("Y size", Y_train.shape)
 
 # build the model
 
-# X_train = np.expand_dims(X_train, axis=2)
-# X_test = np.expand_dims(X_test, axis=2)
+X_train = np.expand_dims(X_train, axis=2)
+X_test = np.expand_dims(X_test, axis=2)
 
 model = Sequential()
-# model.add(Conv1D(1, 2, strides=2, input_shape = (32,1), padding = 'same', activation = 'sigmoid'))
-# model.add(Flatten())
+model.add(Conv1D(1, 2, strides=2, input_shape = (32,1), padding = 'same', activation = 'sigmoid'))
+model.add(Flatten())
 model.add(Dense(16,input_dim = 32, activation='sigmoid'))
 model.add(Dense(16, activation='sigmoid'))
 model.add(Dense(16, activation='sigmoid'))
@@ -46,16 +46,22 @@ model.add(Dense(8, activation='sigmoid'))
 model.add(Dense(output_dim, activation='softmax'))
 model.summary()
 batch_size = 32
-nb_epoch = 20
+nb_epoch = 40
 
 # compile the model
 
 sgd = optimizers.SGD(lr=0.01) # added a higher learning rate
 model.compile(optimizer=sgd, loss='mean_absolute_error', metrics=['accuracy']) # changed optim, error
-history = model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
+history = model.fit(X_train, Y_train, batch_size=batch_size, epochs=nb_epoch,verbose=1, validation_data=(X_test, Y_test))
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
+
+# save losses
+loss_history = history.history["loss"]
+np_loss_history = np.array(loss_history)
+print(np_loss_history.shape)
+np.save('duncan_history',np_loss_history)
 
 # save model and weights
 
