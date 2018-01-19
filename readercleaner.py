@@ -112,7 +112,7 @@ def diff(ball):
 
 # analytical difficulty (other formulae also exist)
 # higher is better
-# TODO: is this actually reasonable?
+# TODO: this is still jank. experiment more in diff_fn.py
 # TODO: what about obstacle balls?
 def diff1(ball, cue):
     d = 0 # artificially low number
@@ -121,17 +121,15 @@ def diff1(ball, cue):
         ball -= 1 # avoid div by 0 error
     cue = cue.values
     for pocket in pockets:
-        theta = angle_between(cue - ball, pocket - ball)
+        theta = angle_between(ball - cue, pocket - ball)
         if theta > 1.58:
             continue # skip if not cuttable angle
-        d1 = np.linalg.norm(ball - cue)
-        d2 = np.linalg.norm(pocket - ball)
-        diff = np.cos(theta) / d1 / d2
+        d1 = np.linalg.norm(ball - cue) / 100 # `\_(">)_/`
+        d2 = np.linalg.norm(pocket - ball) / 100
+        diff = np.cos(theta)**(4.1-2.7*theta) / d1**0.33 / d2**0.38
         if diff > d:
             d = diff
-    return d * 10 ** 6
-    # values are tiny! hence i multiply d by a large constant before returning
-    # or I could normalize the values afterward
+    return min(d,1) # incredibly hacky
 
 # TODO: same exact problems
 def diffseries(ball, cue):
@@ -145,9 +143,9 @@ def diffseries(ball, cue):
         theta = angle_between(cue - ball, pocket - ball)
         if theta > 1.58:
             continue # skip if not cuttable angle
-        d1 = np.linalg.norm(ball - cue)
-        d2 = np.linalg.norm(pocket - ball)
-        diff = np.cos(theta) / d1 / d2
+        d1 = np.linalg.norm(ball - cue) / 100 # `\_(">)_/`
+        d2 = np.linalg.norm(pocket - ball) / 100
+        diff = np.cos(theta)**(4.1-2.7*theta) / d1**0.33 / d2**0.38
         if diff > d:
             d = diff
             data = [theta,d1,d2]
