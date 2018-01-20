@@ -1,5 +1,5 @@
-# USAGE
-# python sliding_window.py --image images/adrian_florida.jpg
+# usage: python sliding_window.py --image images/adrian_florida.jpg
+# from pyimagesearch
 
 from pyimagesearch.helpers import pyramid
 from pyimagesearch.helpers import sliding_window

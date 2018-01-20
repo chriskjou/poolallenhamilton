@@ -1,4 +1,4 @@
-# Added a thresholder class so we can store multiple thresholding algos
+# added a thresholder class so we can store multiple thresholding algos
 
 import numpy as np
 import scipy
@@ -6,15 +6,14 @@ import scipy.ndimage as ndimage
 import scipy.ndimage.filters as filters
 import matplotlib.pyplot as plt
 
-# If ever use this fn again, there may be weird transpose action going on
-# Clear it up once and for all
+# plots heatmap
 def lovelyplot(arr, name, bsq):
     plt.imshow(arr.transpose()+1-1, vmin=0, vmax=1)
     plt.colorbar()
     plt.xlabel('long edge')
     plt.ylabel('short edge')
     plt.title(name)
-    plt.savefig("../memes/" + name + str(bsq), vmin=0, vmax=1)
+    plt.savefig(name + str(bsq), vmin=0, vmax=1)
     plt.show()
 
 class Thresholder:
@@ -27,7 +26,7 @@ class Thresholder:
     def get_heatmap(self):
         return self.heatmap
 
-    # sorts in order 'cue' 'eight' 'solid' 'stripe'
+    # sorts in order of predictions 'cue' 'eight' 'solid' 'stripe'
     def sortballs(self):
         self.balls.sort(key = lambda x: x[0])
 
@@ -57,7 +56,6 @@ class Thresholder:
     def general_thresh(self):
         nb_sz = 2
         data = self.heatmap
-        #uglyplot(data.transpose(), 'threshold', self.ballsquare) # flipped?
         data_max = filters.maximum_filter(data, nb_sz)
         maxima = (data == data_max)
         data_min = filters.minimum_filter(data, nb_sz)

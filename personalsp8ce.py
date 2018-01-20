@@ -1,4 +1,4 @@
-# Called by classify.py (and family) to do local max greedy visual search on a heatmap
+# called by classify.py (and family) to do local max greedy visual search on a heatmap
 
 import numpy as np
 # np.set_printoptions(threshold=np.nan)
