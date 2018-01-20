@@ -26,12 +26,12 @@ def get_game_data(gamepath):
     return df
 
 def switchturn(x):
-	if x == 0:
-		return 1
-	elif x == 1:
-		return 0
-	else:
-		return -1
+    if x == 0:
+        return 1
+    elif x == 1:
+        return 0
+    else:
+        return -1
 
 # Oh, an idea! Probabilistic model for turns, in coin-flipping style!
 # Because it's only feasible to think about nsol/nstr rn, with noisy data
