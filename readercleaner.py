@@ -1,3 +1,5 @@
+# Extracts various pandas dataframes from pool ball data
+
 import numpy as np
 import pandas as pd
 import glob
@@ -28,7 +30,6 @@ def get_meta(gamepath):
         meta = next(reader)
     return meta
 
-# TODO: added a lot of nonsense into this one. clean it up
 # TODO: duplicate later frames! (or just give it the second half of the game?)
 # type, x, y, frame, winner (1 if stripes wins), (cuex, cuey, diff nonsense)
 def get_game_data(gamepath):
@@ -112,7 +113,7 @@ def diff(ball):
 
 # analytical difficulty (other formulae also exist)
 # higher is better
-# TODO: this is still jank. experiment more in diff_fn.py
+# TODO: Latest experiments on difficulty can be found in diff_fn.py
 # TODO: what about obstacle balls?
 def diff1(ball, cue):
     d = 0 # artificially low number
@@ -131,7 +132,7 @@ def diff1(ball, cue):
             d = diff
     return min(d,1) # incredibly hacky
 
-# TODO: same exact problems
+# TODO: same exact code
 def diffseries(ball, cue):
     d = 0
     data = [0,0,0] # don't have any better ideas
@@ -151,7 +152,6 @@ def diffseries(ball, cue):
             data = [theta,d1,d2]
     return pd.Series({'theta':data[0], 'd1':data[1],'d2':data[2]})
 
-# TODO: adjust these threshold values
 # 0 for easy, 1 for med, 2 for hard
 def zone(ball,cue):
     d = diff1(ball,cue)
@@ -197,7 +197,7 @@ def get_data2(start, end):
     return df
 
 # numstripes, numsolids, d2 for each stripe, d2 for each solid, winner, game
-# balls ordered by difficulty. Swap analytical diff for d2 by switching the commented thing
+# balls ordered by difficulty. Swap analytical diff for d2 by switching the commented line
 def get_data3(start, end):
     df = pd.DataFrame(columns=['numstripe','numsolid']+['stripe'+str(i) for i in range(7)]+['solid'+str(i) for i in range(7)]+['winner','game'])
     for i in range(start, end):
@@ -270,8 +270,6 @@ def get_dataduncan(start, end):
     Y = Y[1:]
     return (X,Y)
 
-
-# TODO: same exact probs
 # same exact thing with "polar" coords (theta, d1, d2) for each solid/stripe/eight
 # TODO: maybe wanna store cue ball's x and y coords?
 def get_dataduncanp(start, end):

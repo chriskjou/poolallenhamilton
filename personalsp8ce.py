@@ -1,3 +1,5 @@
+# Called by classify.py (and family) to do local max greedy visual search on a heatmap
+
 import numpy as np
 # np.set_printoptions(threshold=np.nan)
 import matplotlib.pyplot as plt
@@ -28,7 +30,7 @@ def personalspace(heatmap):
 		print(bustmap)
 		print(maxcoord)
 		print(maxprob)
-		plt.imshow(bustmap) # mpl y u no work?
+		plt.imshow(bustmap)
 		plt.show()
 	balls = list(map(lambda ball: (ball[0]-2,ball[1]-2), balls))
 	return balls

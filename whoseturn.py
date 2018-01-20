@@ -1,3 +1,6 @@
+# Original idea: from xy data on each ball, get an array of whose turn it was during each shot
+# More difficult than it seems
+
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
