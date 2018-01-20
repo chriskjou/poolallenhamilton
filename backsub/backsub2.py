@@ -14,3 +14,4 @@ foreground = cv2.absdiff(original_image, background_image)
 
 cv2.imshow('Original Image', foreground)
 cv2.waitKey(0)
+print("DONE")

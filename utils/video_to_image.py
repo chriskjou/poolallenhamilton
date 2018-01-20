@@ -1,9 +1,12 @@
+# Extracts images from video every 30 seconds using opencv
+
 import cv2
 import glob
 print(cv2.__version__)
 
 # Make sure the Seagate hard drive is plugged in
-vids = glob.glob('E:/BALS_mp4s_csvs/*.mp4')
+vids = glob.glob('../../../../media/wintern18/Seagate Expansion Drive/BALS_mp4s_csvs/*.mp4')
+# vids = vids[99:]
 for vid in vids:
 	vidcap = cv2.VideoCapture(vid)
 	vid = vid.split('BALS_2017-')[-1].split('.mp4')[0]
