@@ -1,3 +1,6 @@
+# Simple game predictions in pytorch
+# We later switched to using keras
+
 import cv2
 import torch
 import torch.nn as nn

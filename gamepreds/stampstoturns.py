@@ -1,3 +1,6 @@
+# Idea: given a list of timestamps, deduce whose turn it is.
+# Surprisingly difficult to reason through an algorithm for this.
+
 from readercleaner import get_image_data
 
 timestamps = [2,24,54,78]

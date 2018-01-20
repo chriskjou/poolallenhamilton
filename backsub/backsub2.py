@@ -1,6 +1,7 @@
+# Uses absolute-difference subtraction to detect changes from one frame to another
+
 import numpy as np
 import cv2
-
 
 original_image = cv2.imread('../threshold.jpg', cv2.IMREAD_COLOR)
 gray_original = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)

@@ -1,3 +1,5 @@
+# Use Markov modeling to predict game outcome from {#solids,#stripes}
+
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
@@ -7,7 +9,7 @@ from readercleaner import get_data1
 trans_matrix = np.zeros((1000,1000)) # ludicrously high
 nstates = 2
 coords = {}
-# hm, is there a python struct that auto assigns a new unique id to each new element
+# hm, is there a python struct that auto assigns a new unique id to each new element?
 
 # populate transition matrix
 for x in range(200):
@@ -55,14 +57,13 @@ for x in range(1,8):
 # there's only 2 absorbing states- don't need to rearrange matrix rows
 # and i don't need to chop away states that are all zeros
 
-# TODO: confirm that the matrix looks sane
-
 # Fundamental Matrix Math
 # E(nsteps before absorption) starting from i is sum_j N_ji
 # E(nvisits to j) starting from i is N_ji
 # P(absorption in j) starting from i is B_ji
 # or take the trans matrix to infty power, instead of using B
 trans_matrix = trans_matrix.transpose()
+np.save('trans_matrix',trans_matrix)
 r = trans_matrix[:2,2:]
 q = trans_matrix[2:,2:]
 n = np.linalg.inv(np.eye(q.shape[0])-q)
@@ -71,7 +72,6 @@ b = np.matmul(r,n)
 print('prob of solid win', sum(b[0])/(nstates-2))
 print('prob of stripe win', sum(b[1])/(nstates-2))
 
-# untested
 heatmap = np.zeros((8,8))
 for numsolid in range(8):
     for numstripe in range(8):

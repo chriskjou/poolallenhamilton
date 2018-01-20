@@ -1,3 +1,5 @@
+# Uses MOG background subtractor algorithm to detect motion in video
+
 import numpy as np
 import cv2
 cap = cv2.VideoCapture('BALS_2017-02-10-1017.mp4')

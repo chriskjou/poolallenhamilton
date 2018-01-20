@@ -1,3 +1,5 @@
+# Experimental code to visualize difficulty function
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -37,9 +39,11 @@ for x in range(1,1579):
         heatmap[x,y] = diff1(ball,cue)
 # it's really slow
 
+# heatmap[heatmap > 1] = 0
+
 # TODO
-# why is it slow?
-# change the diff fn (use e^-x instead?)
+# how can we do this efficiently?
+# change the diff fn (use e^-x instead)?
 
 plt.imshow(heatmap.transpose(),interpolation='none')
 plt.plot(cue[0],cue[1],marker='o',markersize=12,color='white')
