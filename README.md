@@ -61,4 +61,4 @@ The classifier will output the predictions for each data set. A prediction score
 
 
 ## Presentation & more details
-https://docs.google.com/presentation/d/1cqyMC4MhSSXiF3mDYgKh77YHFXYgoi77ertPVMJV8IA/edit?usp=sharing
+https://docs.google.com/presentation/d/1cqyMC4MhSSXiF3mDYgKh77YHFXYgoi77ertPVMJV8IA/view?usp=sharing
